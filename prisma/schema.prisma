@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User (Administrator or Agent)
+model User {
+  id            Int           @id @default(autoincrement())
+  fullName      String        @db.VarChar(100)
+  email         String        @unique
+  phoneNumber   String        @unique
+  status        String       
+  role          String        @default("agent")
+  customers     Customer[]    @relation("UserCustomers")
+  vehicles      Vehicle[]     @relation("UserVehicles")
+  reservations  Reservation[] @relation("UserReservations")
+  locations     Location[]    @relation("UserLocations")  // Relation with rentals
+  tickets       Ticket[]      @relation("UserTickets")     // Relation with tickets
+
+  @@map("users")
+}
+model Customer {
+  id            Int           @id @default(autoincrement())
+  fullName      String        @db.VarChar(100)
+  address       String?   
+  nni           Int          @unique
+  birthDate     DateTime
+  drivingLicense String       @unique @db.VarChar(50)
+  phoneNumber    Int          @unique 
+  reservations  Reservation[] 
+  user          User?         @relation("UserCustomers", fields: [id_user], references: [id])
+  id_user       Int?
+  locations     Location[]    @relation("CustomerLocations") 
+  @@map("customers")
+}
+
+// Vehicle
+model Vehicle {
+  id                Int           @id @default(autoincrement())
+  brand             String        @db.VarChar(50)
+  model             String        @db.VarChar(50)
+  year              Int
+  registrationPlate String        @unique @db.VarChar(50)
+  status            String        @db.VarChar(25) // "available", "rented", "under maintenance"
+  seatCount         Int
+  doorCount         Int
+  color             String        @db.VarChar(25)
+  fuelType          String        @db.VarChar(25)
+  transmissionType  String        @db.VarChar(25)
+  airConditioning   Boolean       // Air conditioning yes/no
+  dailyRate         Decimal       @db.Decimal(10, 2) // Daily rate
+  tickets           Ticket[]      // Relation with tickets
+  reservations      Reservation[] // Relation with reservations
+  locations         Location[]    @relation("VehicleLocations") // Relation with rentals
+  user              User?         @relation("UserVehicles", fields: [id_user], references: [id])
+  id_user           Int?
+
+  @@map("vehicles")
+}
+
+// Reservation
+model Reservation {
+  id            Int           @id @default(autoincrement())
+  startDate     DateTime
+  endDate       DateTime
+  totalAmount   Decimal        @db.Decimal(10, 2) 
+  status        String         @db.VarChar(25)
+  vehicle       Vehicle        @relation(fields: [id_vehicle], references: [id])
+  id_vehicle    Int
+  customer      Customer       @relation(fields: [id_customer], references: [id])
+  id_customer   Int
+  user          User?          @relation("UserReservations", fields: [id_user], references: [id])
+  id_user       Int?
+
+  @@map("reservations")
+}
+
+model Ticket {
+  id           Int       @id @default(autoincrement())
+  ticketNumber String    @unique @db.VarChar(25)
+  exitDate     DateTime  
+  returnDate   DateTime? 
+  vehicle      Vehicle   @relation(fields: [id_vehicle], references: [id])
+  id_vehicle   Int
+  user         User      @relation("UserTickets", fields: [id_user], references: [id]) 
+  id_user      Int
+  locations    Location[] @relation("TicketLocations") 
+
+  @@map("tickets")
+}
+
+model Location {
+  id           Int       @id @default(autoincrement())
+  startDate    DateTime  
+  returnDate   DateTime?
+  status       String    @db.VarChar(50) // Rental status ("ongoing", "completed")
+  ticket       Ticket?   @relation("TicketLocations", fields: [id_ticket], references: [id]) 
+  id_ticket    Int?
+  vehicle      Vehicle    @relation("VehicleLocations", fields: [id_vehicle], references: [id]) 
+  id_vehicle   Int
+  customer     Customer    @relation("CustomerLocations", fields: [id_customer], references: [id]) 
+  id_customer  Int
+  user         User?      @relation("UserLocations", fields: [id_user], references: [id]) 
+  id_user      Int?
+  
+  @@map("locations")
+}
