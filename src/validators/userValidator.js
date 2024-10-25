@@ -8,7 +8,9 @@ export const userRegistrationValidator = [
     .matches(/\d/)
     .matches(/[a-zA-Z]/)
     .matches(/[@$!%*?&#]/)
-    .withMessage('Password must contain at least 8 characters, including letters, numbers, and special characters.'),
+    .withMessage(
+      'Password must contain at least 8 characters, including letters, numbers, and special characters.'
+    ),
   check('role').isIn(['admin', 'agent']).withMessage('Invalid role'),
 ];
 
@@ -26,5 +28,7 @@ export const updatePasswordValidator = [
     .matches(/\d/)
     .matches(/[a-zA-Z]/)
     .matches(/[@$!%*?&#]/)
-    .withMessage('New password must contain letters, numbers, and special characters.'),
+    .withMessage(
+      'New password must contain letters, numbers, and special characters.'
+    ),
 ];

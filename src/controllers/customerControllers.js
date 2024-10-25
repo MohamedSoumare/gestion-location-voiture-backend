@@ -2,60 +2,62 @@ import prisma from '../config/db.js';
 import { CustomerValidators } from '../validators/customerValidators.js';
 
 const customerController = {
-    addCustomer: async (req, res) => {
-        const { fullName, address, phoneNumber, nni, dateOfBirth, drivingLicense } = req.body;
-    
-        try {
-          // Validate and check unique constraints
-          await CustomerValidators.checkUniquePhoneNumber(phoneNumber);
-          await CustomerValidators.checkUniqueNni(nni);
-          await CustomerValidators.checkUniqueDrivingLicense(drivingLicense);
-    
-          // Check if dateOfBirth is a valid date string
-          const parsedDate = new Date(dateOfBirth);
-          if (isNaN(parsedDate)) {
-            throw new Error('Invalid birth date format');
-          }
+  addCustomer: async (req, res) => {
+    const { fullName, address, phoneNumber, nni, dateOfBirth, drivingLicense } =
+      req.body;
 
-          const customer = await prisma.customer.create({
-            data: {
-              fullName,
-              address,
-              phoneNumber,
-              nni,
-              birthDate: parsedDate,  
-              drivingLicense
-            }
-          });
-    
-          return res.status(201).json(customer);
-        } catch (error) {
-          return res.status(400).json({ error: error.message });
-        }
-      },
-      
+    try {
+      await CustomerValidators.checkUniquePhoneNumber(phoneNumber);
+      await CustomerValidators.checkUniqueNni(nni);
+      await CustomerValidators.checkUniqueDrivingLicense(drivingLicense);
+
+      const parsedDate = new Date(dateOfBirth);
+      if (isNaN(parsedDate)) {
+        throw new Error('Invalid birth date format');
+      }
+
+      const customer = await prisma.customer.create({
+        data: {
+          fullName,
+          address,
+          phoneNumber,
+          nni,
+          birthDate: parsedDate,
+          drivingLicense,
+        },
+      });
+      return res.status(201).json(customer);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  },
+
   updateCustomer: async (req, res) => {
     const { id } = req.params;
-    const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } = req.body;
-    
+    const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } =
+      req.body;
+
     try {
-      const customer = await prisma.customer.findUnique({ where: { id: parseInt(id) } });
-      
+      const customer = await prisma.customer.findUnique({
+        where: { id: parseInt(id) },
+      });
+
       if (!customer) {
         return res.status(404).json({ error: 'Customer not found' });
       }
 
-      // Validate unique constraints
-      if (phoneNumber) await CustomerValidators.checkUniquePhoneNumber(phoneNumber, id);
+      if (phoneNumber)
+        await CustomerValidators.checkUniquePhoneNumber(phoneNumber, id);
       if (nni) await CustomerValidators.checkUniqueNni(nni, id);
-      if (drivingLicense) await CustomerValidators.checkUniqueDrivingLicense(drivingLicense, id);
-      
+      if (drivingLicense)
+        await CustomerValidators.checkUniqueDrivingLicense(drivingLicense, id);
+
       const updatedData = {
         fullName: fullName || customer.fullName,
         address: address || customer.address,
         phoneNumber: phoneNumber || customer.phoneNumber,
         nni: nni || customer.nni,
-        birthDate: birthDate ? new Date(birthDate) : customer.birthDate, // Ensure to use 'birthDate'
+        birthDate: birthDate ? new Date(birthDate) : customer.birthDate,
         drivingLicense: drivingLicense || customer.drivingLicense,
       };
 
@@ -65,7 +67,6 @@ const customerController = {
       });
 
       return res.status(200).json(updatedCustomer);
-
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
@@ -84,7 +85,7 @@ const customerController = {
     const { id } = req.params;
     try {
       const customer = await prisma.customer.findUnique({
-        where: { id: parseInt(id) }
+        where: { id: parseInt(id) },
       });
       if (!customer) {
         return res.status(404).json({ error: 'Customer not found' });
@@ -99,16 +100,17 @@ const customerController = {
     const { id } = req.params;
     try {
       const existingReservations = await prisma.reservation.findMany({
-        where: { id_customer: parseInt(id) }
+        where: { id_customer: parseInt(id) },
       });
 
       if (existingReservations.length > 0) {
-        return res.status(400).json({ error: 'Cannot delete customer with active reservations' });
+        return res
+          .status(400)
+          .json({ error: 'Cannot delete customer with active reservations' });
       }
 
       await prisma.customer.delete({ where: { id: parseInt(id) } });
       return res.status(200).json({ message: 'Customer deleted successfully' });
-
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
@@ -118,13 +120,13 @@ const customerController = {
     const { id } = req.params;
     try {
       const reservations = await prisma.reservation.findMany({
-        where: { id_customer: parseInt(id) }
+        where: { id_customer: parseInt(id) },
       });
       return res.status(200).json(reservations);
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
-  }
+  },
 };
 
 export default customerController;

@@ -57,11 +57,11 @@ model Vehicle {
   color             String        @db.VarChar(25)
   fuelType          String        @db.VarChar(25)
   transmissionType  String        @db.VarChar(25)
-  airConditioning   Boolean       // Air conditioning yes/no
-  dailyRate         Decimal       @db.Decimal(10, 2) // Daily rate
-  tickets           Ticket[]      // Relation with tickets
-  reservations      Reservation[] // Relation with reservations
-  locations         Location[]    @relation("VehicleLocations") // Relation with rentals
+  airConditioning   Boolean
+  dailyRate         Decimal       @db.Decimal(10, 2) 
+  tickets           Ticket[]      
+  reservations      Reservation[] 
+  locations         Location[]    @relation("VehicleLocations") 
   user              User?         @relation("UserVehicles", fields: [id_user], references: [id])
   id_user           Int?
 
@@ -95,8 +95,8 @@ model Ticket {
   user         User      @relation("UserTickets", fields: [id_user], references: [id]) 
   id_user      Int
   locations    Location[] @relation("TicketLocations") 
-
   @@map("tickets")
+  
 }
 
 model Location {
@@ -114,4 +114,5 @@ model Location {
   id_user      Int?
   
   @@map("locations")
+
 }

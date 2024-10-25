@@ -4,8 +4,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
- 
 import { errorHandler } from './middlewares/errorHandler.js';
+import vehicleRoutes from './routes/vechicleRoutes.js';
 import { Prisma } from '@prisma/client';
 
 dotenv.config(); // Charger les variables d'environnement depuis .env
@@ -13,12 +13,13 @@ dotenv.config(); // Charger les variables d'environnement depuis .env
 const app = express();
 
 // Middlewares globaux
-app.use(express.json()); 
-app.use(cors()); 
+app.use(express.json());
+app.use(cors());
 app.use(morgan('dev')); // Logger les requêtes HTTP
 
-app.use(userRoutes); 
+app.use(userRoutes);
 app.use(customerRoutes);
+app.use(vehicleRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route non trouvée' });
