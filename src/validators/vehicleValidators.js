@@ -21,6 +21,7 @@ export const validateVehicleData = [
     .optional()
     .isNumeric()
     .withMessage('Année doit être un nombre.'),
+
   check('registrationPlate')
     .optional()
     .notEmpty()
@@ -31,14 +32,17 @@ export const validateVehicleData = [
         req.params.id
       );
     }),
+
   check('status')
     .optional()
     .notEmpty()
     .withMessage('Le statut du véhicule est requis.'),
+
   check('seatCount')
     .optional()
     .isNumeric()
     .withMessage('Le nombre de sièges doit être un nombre.'),
+    
   check('doorCount')
     .optional()
     .isNumeric()

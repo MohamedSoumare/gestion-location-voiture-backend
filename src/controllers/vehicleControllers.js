@@ -2,7 +2,6 @@ import prisma from '../config/db.js';
 import { VehicleValidators } from '../validators/vehicleValidators.js';
 
 const vehicleController = {
-  // Ajouter un véhicule
   addVehicle: async (req, res) => {
     const {
       brand,
@@ -45,8 +44,6 @@ const vehicleController = {
       return res.status(400).json({ error: error.message });
     }
   },
-
-  // Mettre à jour un véhicule
   updateVehicle: async (req, res) => {
     const { id } = req.params;
     try {
@@ -57,14 +54,12 @@ const vehicleController = {
       if (!vehicle) {
         return res.status(404).json({ error: 'Véhicule non trouvé' });
       }
-
       if (req.body.registrationPlate) {
         await VehicleValidators.checkUniqueRegistrationPlate(
           req.body.registrationPlate,
           id
         );
       }
-
       const updatedVehicle = await prisma.vehicle.update({
         where: { id: parseInt(id) },
         data: {

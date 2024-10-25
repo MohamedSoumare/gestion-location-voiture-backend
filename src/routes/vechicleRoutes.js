@@ -13,6 +13,7 @@ router.post(
   handleValidationErrors,
   vehicleController.addVehicle
 );
+
 router.put(
   '/vehicles/edit/:id',
   validateVehicleData,
