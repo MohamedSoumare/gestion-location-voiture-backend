@@ -42,7 +42,7 @@ export const validateVehicleData = [
     .optional()
     .isNumeric()
     .withMessage('Le nombre de sièges doit être un nombre.'),
-    
+
   check('doorCount')
     .optional()
     .isNumeric()

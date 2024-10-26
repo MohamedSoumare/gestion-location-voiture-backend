@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// This is your Prisma schema file
 
 generator client {
   provider = "prisma-client-js"
@@ -17,30 +13,30 @@ datasource db {
 model User {
   id            Int           @id @default(autoincrement())
   fullName      String        @db.VarChar(100)
-  email         String        @unique
-  phoneNumber   String        @unique
-  status        String       
-  role          String        @default("agent")
+  email         String        @unique @db.VarChar(100)
+  phoneNumber   String        @unique @db.VarChar(20)
+  status        String        @db.VarChar(25)
+  role          String        @default("agent") @db.VarChar(50)
   customers     Customer[]    @relation("UserCustomers")
   vehicles      Vehicle[]     @relation("UserVehicles")
   reservations  Reservation[] @relation("UserReservations")
-  locations     Location[]    @relation("UserLocations")  // Relation with rentals
-  tickets       Ticket[]      @relation("UserTickets")     // Relation with tickets
-
+  locations     Location[]    @relation("UserLocations")
+  tickets       Ticket[]      @relation("UserTickets")
   @@map("users")
 }
+
 model Customer {
   id            Int           @id @default(autoincrement())
-  fullName      String        @db.VarChar(100)
-  address       String?   
-  nni           Int          @unique
+  fullName      String        @db.VarChar(60)
+  address       String?
+  nni           Int           @unique
   birthDate     DateTime
   drivingLicense String       @unique @db.VarChar(50)
-  phoneNumber    Int          @unique 
-  reservations  Reservation[] 
-  user          User?         @relation("UserCustomers", fields: [id_user], references: [id])
-  id_user       Int?
-  locations     Location[]    @relation("CustomerLocations") 
+  phoneNumber   String        @unique @db.VarChar(20)
+  reservations  Reservation[]
+  user          User?         @relation("UserCustomers", fields: [user_id], references: [id])
+  user_id       Int?
+  locations     Location[]    @relation("CustomerLocations")
   @@map("customers")
 }
 
@@ -51,21 +47,20 @@ model Vehicle {
   model             String        @db.VarChar(50)
   year              Int
   registrationPlate String        @unique @db.VarChar(50)
-  status            String        @db.VarChar(25) // "available", "rented", "under maintenance"
+  status            String        @db.VarChar(25)
   seatCount         Int
   doorCount         Int
   color             String        @db.VarChar(25)
   fuelType          String        @db.VarChar(25)
   transmissionType  String        @db.VarChar(25)
   airConditioning   Boolean
-  dailyRate         Decimal       @db.Decimal(10, 2) 
-  tickets           Ticket[]      
-  reservations      Reservation[] 
-  locations         Location[]    @relation("VehicleLocations") 
-  user              User?         @relation("UserVehicles", fields: [id_user], references: [id])
-  id_user           Int?
-
-  @@map("vehicles")
+  dailyRate         Decimal       @db.Decimal(10, 2)
+  tickets           Ticket[]
+  reservations      Reservation[]
+  locations         Location[]    @relation("VehicleLocations")
+  user              User?         @relation("UserVehicles", fields: [user_id], references: [id])
+  user_id           Int?
+  @@map("vehicules")
 }
 
 // Reservation
@@ -73,46 +68,55 @@ model Reservation {
   id            Int           @id @default(autoincrement())
   startDate     DateTime
   endDate       DateTime
-  totalAmount   Decimal        @db.Decimal(10, 2) 
+  totalAmount   Decimal        @db.Decimal(10, 2)
   status        String         @db.VarChar(25)
-  vehicle       Vehicle        @relation(fields: [id_vehicle], references: [id])
-  id_vehicle    Int
-  customer      Customer       @relation(fields: [id_customer], references: [id])
-  id_customer   Int
-  user          User?          @relation("UserReservations", fields: [id_user], references: [id])
-  id_user       Int?
-
+  vehicle       Vehicle        @relation(fields: [vehicle_id], references: [id])
+  vehicle_id    Int
+  customer      Customer       @relation(fields: [customer_id], references: [id])
+  customer_id   Int
+  user          User?          @relation("UserReservations", fields: [user_id], references: [id])
+  user_id       Int?
   @@map("reservations")
 }
 
+// Ticket
 model Ticket {
   id           Int       @id @default(autoincrement())
   ticketNumber String    @unique @db.VarChar(25)
-  exitDate     DateTime  
-  returnDate   DateTime? 
-  vehicle      Vehicle   @relation(fields: [id_vehicle], references: [id])
-  id_vehicle   Int
-  user         User      @relation("UserTickets", fields: [id_user], references: [id]) 
-  id_user      Int
-  locations    Location[] @relation("TicketLocations") 
-  @@map("tickets")
-  
+  exitDate     DateTime
+  returnDate   DateTime?
+  vehicle      Vehicle   @relation(fields: [vehicle_id], references: [id])
+  vehicle_id   Int
+  user         User      @relation("UserTickets", fields: [user_id], references: [id])
+  user_id      Int
+   @@map("tickets")
 }
 
+// Location
 model Location {
-  id           Int       @id @default(autoincrement())
-  startDate    DateTime  
-  returnDate   DateTime?
-  status       String    @db.VarChar(50) // Rental status ("ongoing", "completed")
-  ticket       Ticket?   @relation("TicketLocations", fields: [id_ticket], references: [id]) 
-  id_ticket    Int?
-  vehicle      Vehicle    @relation("VehicleLocations", fields: [id_vehicle], references: [id]) 
-  id_vehicle   Int
-  customer     Customer    @relation("CustomerLocations", fields: [id_customer], references: [id]) 
-  id_customer  Int
-  user         User?      @relation("UserLocations", fields: [id_user], references: [id]) 
-  id_user      Int?
-  
+  id            Int          @id @default(autoincrement())
+  startDate     DateTime
+  returnDate    DateTime?
+  status        String       @db.VarChar(50)
+  reservation_id Int?
+  reservation   Reservation? @relation(fields: [reservation_id], references: [id])
+  vehicle       Vehicle      @relation("VehicleLocations", fields: [vehicle_id], references: [id])
+  vehicle_id    Int
+  customer      Customer     @relation("CustomerLocations", fields: [customer_id], references: [id])
+  customer_id   Int
+  user          User?        @relation("UserLocations", fields: [user_id], references: [id])
+  user_id       Int?
   @@map("locations")
+}
 
+// Contract
+model Contract {
+  id           Int       @id @default(autoincrement())
+  contractNumber String  @unique @db.VarChar(50)
+  startDate    DateTime
+  endDate      DateTime
+  totalAmount  Decimal   @db.Decimal(10, 2)
+  status       String    @db.VarChar(50)
+  locations    Location[] @relation("ContractLocations")
+  @@map("contracts")
 }

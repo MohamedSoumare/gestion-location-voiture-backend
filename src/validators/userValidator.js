@@ -1,34 +1,21 @@
-import { check, body } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 
-// User registration validation
-export const userRegistrationValidator = [
-  check('email').isEmail().withMessage('Invalid email'),
-  check('password')
+export const validateUser = [
+  body('fullName')
+    .isLength({ min: 2 })
+    .withMessage('Le nom complet doit contenir au moins 2 caractères.'),
+  body('email').isEmail().withMessage('Un email valide est requis.'),
+  body('phoneNumber')
     .isLength({ min: 8 })
-    .matches(/\d/)
-    .matches(/[a-zA-Z]/)
-    .matches(/[@$!%*?&#]/)
     .withMessage(
-      'Password must contain at least 8 characters, including letters, numbers, and special characters.'
+      'Le numéro de téléphone est requis et doit contenir au moins 8 chiffres.'
     ),
-  check('role').isIn(['admin', 'agent']).withMessage('Invalid role'),
-];
-
-// User login validation
-export const userLoginValidator = [
-  check('email').isEmail().withMessage('Invalid email'),
-  check('password').isLength({ min: 8 }).withMessage('Invalid password'),
-];
-
-// Update password validation
-export const updatePasswordValidator = [
-  body('oldPassword').exists().withMessage('Old password required'),
-  check('newPassword')
-    .isLength({ min: 8 })
-    .matches(/\d/)
-    .matches(/[a-zA-Z]/)
-    .matches(/[@$!%*?&#]/)
-    .withMessage(
-      'New password must contain letters, numbers, and special characters.'
-    ),
+  body('status').notEmpty().withMessage('Le statut est requis.'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
 ];
