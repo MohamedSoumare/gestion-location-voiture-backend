@@ -1,23 +1,14 @@
 import express from 'express';
 import vehicleController from '../controllers/vehicleControllers.js';
-import {
-  handleValidationErrors,
-  validateVehicleData,
-} from '../validators/vehicleValidators.js';
+import { validateVehicleData } from '../validators/vehicleValidators.js';
 
 const router = express.Router();
 
-router.post(
-  '/vehicles/add',
-  validateVehicleData,
-  handleValidationErrors,
-  vehicleController.addVehicle
-);
+router.post('/vehicles/add', validateVehicleData, vehicleController.addVehicle);
 
 router.put(
   '/vehicles/edit/:id',
   validateVehicleData,
-  handleValidationErrors,
   vehicleController.updateVehicle
 );
 

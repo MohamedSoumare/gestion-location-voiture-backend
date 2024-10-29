@@ -6,7 +6,13 @@ import {
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
+console.log('Creating a new customer...');
+console.log('Request body:', req.body);
+console.log('Creating a new customer...');
+console.log('Request body:', req.body);
+console.log('Retrieving a list of customers...');
+console.log('Retrieving a single customer by ID...');
+console.log('Request params:', req.params);
 describe('Customer Controller', () => {
   it('should create a new customer', async () => {
     const req = {

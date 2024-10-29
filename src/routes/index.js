@@ -4,9 +4,9 @@ import {
   userRegistrationValidator,
   userLoginValidator,
   updatePasswordValidator,
-} from '../validators/userValidator';
+} from '../validators/userValidators.js';
 // import { vehicleValidator } from '../validators/vehicleValidator';
-import { validate } from '../middlewares/validate.js'; // Middleware to handle validation errors
+import { validate } from '../middlewares/validate.js';
 
 const router = express.Router();
 
@@ -25,9 +25,6 @@ router.post(
 );
 router.post('/password-reset-request', UserController.requestPasswordReset);
 router.post('/password-reset', UserController.resetPassword);
-
 router.post('/change-role', UserController.changeUserRole);
-
-// Autres routes...
 
 export default router;

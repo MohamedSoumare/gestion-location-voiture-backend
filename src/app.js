@@ -6,30 +6,34 @@ import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import vehicleRoutes from './routes/vechicleRoutes.js';
-import { Prisma } from '@prisma/client';
+import reservationRoutes from './routes/reservationRoutes.js';
+import contractRoutes from './routes/contractRoutes.js';
+// import locationRoutes from './routes/locationRoutes.js';
 
-dotenv.config(); // Charger les variables d'environnement depuis .env
+import { Prisma } from '@prisma/client';
+dotenv.config();
 
 const app = express();
 
-// Middlewares globaux
 app.use(express.json());
 app.use(cors());
-app.use(morgan('dev')); // Logger les requêtes HTTP
+app.use(morgan('dev'));
 
 app.use(userRoutes);
 app.use(customerRoutes);
 app.use(vehicleRoutes);
+app.use(reservationRoutes);
+
+// app.use(locationRoutes);
+app.use(contractRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route non trouvée' });
 });
 
-// Gestion des erreurs globales
-app.use(errorHandler); // Middleware pour capturer les erreurs et les retourner sous forme JSON
+app.use(errorHandler);
 
-// Démarrer le serveur
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });

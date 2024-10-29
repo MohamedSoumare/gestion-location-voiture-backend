@@ -20,27 +20,25 @@ model User {
   customers     Customer[]    @relation("UserCustomers")
   vehicles      Vehicle[]     @relation("UserVehicles")
   reservations  Reservation[] @relation("UserReservations")
-  locations     Location[]    @relation("UserLocations")
-  tickets       Ticket[]      @relation("UserTickets")
-  @@map("users")
+  contracts     Contract[]    @relation("UserContracts")
+    @@map("users")
 }
 
 model Customer {
-  id            Int           @id @default(autoincrement())
-  fullName      String        @db.VarChar(60)
-  address       String?
-  nni           Int           @unique
-  birthDate     DateTime
-  drivingLicense String       @unique @db.VarChar(50)
-  phoneNumber   String        @unique @db.VarChar(20)
-  reservations  Reservation[]
-  user          User?         @relation("UserCustomers", fields: [user_id], references: [id])
-  user_id       Int?
-  locations     Location[]    @relation("CustomerLocations")
+  id              Int           @id @default(autoincrement())
+  fullName        String        @db.VarChar(60)
+  address         String?
+  nni             Int           @unique
+  birthDate       DateTime
+  drivingLicense  String        @unique @db.VarChar(50)
+  phoneNumber     Int           @unique
+  reservations    Reservation[]
+  user            User?         @relation("UserCustomers", fields: [user_id], references: [id])
+  user_id          Int?
+  contracts       Contract[]    @relation("CustomerContracts")
   @@map("customers")
 }
 
-// Vehicle
 model Vehicle {
   id                Int           @id @default(autoincrement())
   brand             String        @db.VarChar(50)
@@ -55,15 +53,13 @@ model Vehicle {
   transmissionType  String        @db.VarChar(25)
   airConditioning   Boolean
   dailyRate         Decimal       @db.Decimal(10, 2)
-  tickets           Ticket[]
   reservations      Reservation[]
-  locations         Location[]    @relation("VehicleLocations")
+  contracts         Contract[]    @relation("VehicleContracts")
   user              User?         @relation("UserVehicles", fields: [user_id], references: [id])
-  user_id           Int?
+  user_id            Int?
   @@map("vehicules")
 }
 
-// Reservation
 model Reservation {
   id            Int           @id @default(autoincrement())
   startDate     DateTime
@@ -71,52 +67,32 @@ model Reservation {
   totalAmount   Decimal        @db.Decimal(10, 2)
   status        String         @db.VarChar(25)
   vehicle       Vehicle        @relation(fields: [vehicle_id], references: [id])
-  vehicle_id    Int
+  vehicle_id     Int
   customer      Customer       @relation(fields: [customer_id], references: [id])
-  customer_id   Int
+  customer_id    Int
   user          User?          @relation("UserReservations", fields: [user_id], references: [id])
-  user_id       Int?
+  user_id        Int?
+  contracts     Contract[]     @relation("ReservationContracts")
+  
   @@map("reservations")
 }
 
-// Ticket
-model Ticket {
-  id           Int       @id @default(autoincrement())
-  ticketNumber String    @unique @db.VarChar(25)
-  exitDate     DateTime
-  returnDate   DateTime?
-  vehicle      Vehicle   @relation(fields: [vehicle_id], references: [id])
-  vehicle_id   Int
-  user         User      @relation("UserTickets", fields: [user_id], references: [id])
-  user_id      Int
-   @@map("tickets")
-}
-
-// Location
-model Location {
-  id            Int          @id @default(autoincrement())
-  startDate     DateTime
-  returnDate    DateTime?
-  status        String       @db.VarChar(50)
-  reservation_id Int?
-  reservation   Reservation? @relation(fields: [reservation_id], references: [id])
-  vehicle       Vehicle      @relation("VehicleLocations", fields: [vehicle_id], references: [id])
-  vehicle_id    Int
-  customer      Customer     @relation("CustomerLocations", fields: [customer_id], references: [id])
-  customer_id   Int
-  user          User?        @relation("UserLocations", fields: [user_id], references: [id])
-  user_id       Int?
-  @@map("locations")
-}
-
-// Contract
 model Contract {
-  id           Int       @id @default(autoincrement())
-  contractNumber String  @unique @db.VarChar(50)
-  startDate    DateTime
-  endDate      DateTime
-  totalAmount  Decimal   @db.Decimal(10, 2)
-  status       String    @db.VarChar(50)
-  locations    Location[] @relation("ContractLocations")
+  id              Int           @id @default(autoincrement())
+  contractNumber  String        @unique @db.VarChar(50)
+  startDate       DateTime
+  returnDate      DateTime?
+  totalAmount     Decimal        @db.Decimal(10, 2)
+  status          String         @db.VarChar(50)
+  reservation_id   Int?
+  reservation     Reservation?   @relation("ReservationContracts", fields: [reservation_id], references: [id])
+  vehicle         Vehicle        @relation("VehicleContracts", fields: [vehicle_id], references: [id])
+  vehicle_id       Int
+  customer        Customer       @relation("CustomerContracts", fields: [customer_id], references: [id])
+  customer_id      Int
+  user            User?          @relation("UserContracts", fields: [user_id], references: [id])
+  user_id          Int?
+
   @@map("contracts")
+
 }

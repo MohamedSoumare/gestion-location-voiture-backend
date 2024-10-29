@@ -1,12 +1,24 @@
 import express from 'express';
-import { listReservations, getReservation, createReservation, updateReservation, deleteReservation } from '../controllers/reservationController.js';
+import { reservationController } from '../controllers/reservationControllers.js';
+import { reservationValidators } from '../validators/reservationValidators.js';
 
 const router = express.Router();
 
-router.get('/reservations', listReservations);
-router.get('/reservations/:id', getReservation);
-router.post('/reservations', createReservation);
-router.put('/reservations/:id', updateReservation);
-router.delete('/reservations/:id', deleteReservation);
+router.post(
+  '/reservations/add',
+  reservationValidators,
+  reservationController.createReservation
+);
+router.get('/reservations', reservationController.getAllReservations);
+router.get('/reservations/:id', reservationController.getReservationById);
+router.put(
+  '/reservations/edit/:id',
+  reservationValidators,
+  reservationController.updateReservation
+);
+router.delete(
+  '/reservations/delete/:id',
+  reservationController.deleteReservation
+);
 
 export default router;

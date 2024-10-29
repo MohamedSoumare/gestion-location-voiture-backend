@@ -20,7 +20,7 @@ export const CustomerValidators = {
       throw new Error('This NNI is already registered.');
     }
   },
-  // Vérification si le permis de conduire est unique
+
   checkUniqueDrivingLicense: async (drivingLicense, customerId = null) => {
     const customer = await prisma.customer.findUnique({
       where: { drivingLicense },

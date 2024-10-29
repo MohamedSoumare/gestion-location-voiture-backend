@@ -1,19 +1,32 @@
 import express from 'express';
+import userController from '../controllers/userControllers.js';
 import {
-  listUsers,
-  getUser,
-  createUser,
-  updateUser,
-  deleteUser,
-} from '../controllers/userControllers.js';
-import { validateUser } from '../validators/userValidator.js';
+  validateUserData,
+  handleValidationErrors,
+} from '../validators/userValidators.js';
 
 const router = express.Router();
 
-router.get('/users', listUsers);
-router.get('/users/:id', getUser);
-router.post('/users', validateUser, createUser);
-router.put('/users/:id', validateUser, updateUser);
-router.delete('/users/:id', deleteUser);
+router.post(
+  '/users/add',
+  validateUserData,
+  handleValidationErrors,
+  userController.addUser
+);
+
+router.put(
+  '/users/edit/:id',
+  validateUserData,
+  handleValidationErrors,
+  userController.updateUser
+);
+
+router.get('/users', userController.getAllUsers);
+
+router.get('/users/:id', userController.getUserById);
+
+router.delete('/users/delete/:id', userController.deleteUser);
+
+// router.get('/users/:id/history', userController.getUserHistory);
 
 export default router;
