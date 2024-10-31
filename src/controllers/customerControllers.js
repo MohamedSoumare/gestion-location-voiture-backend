@@ -1,100 +1,117 @@
 import prisma from '../config/db.js';
-import { CustomerValidators } from '../validators/customerValidators.js';
 
 const customerController = {
   addCustomer: async (req, res) => {
-    const {
-      fullName,
-      address,
-      phoneNumber,
-      nni,
-      dateOfBirth,
-      drivingLicense,
-      user_id,
-    } = req.body;
+    const { fullName, address, phoneNumber, nni, dateOfBirth, drivingLicense } =
+      req.body;
+    const user_id = req.user.user_id;
 
+    if (!user_id) {
+      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
+    }
     try {
-      if (user_id) {
-        const userExists = await prisma.user.findUnique({
-          where: { id: user_id },
-        });
-        if (!userExists) {
-          return res
-            .status(400)
-            .json({ error: 'User with the provided ID does not exist.' });
-        }
+      const existingCustomer = await prisma.customer.findFirst({
+        where: {
+          OR: [{ phoneNumber }, { nni: String(nni) }, { drivingLicense }],
+        },
+      });
+
+      if (existingCustomer) {
+        return res
+          .status(400)
+          .json({
+            error:
+              'Le numéro de téléphone, NNI ou permis de conduire est déjà utilisé.',
+          });
       }
-
-      await CustomerValidators.checkUniquePhoneNumber(phoneNumber);
-      await CustomerValidators.checkUniqueNni(nni);
-      await CustomerValidators.checkUniqueDrivingLicense(drivingLicense);
-
       const parsedDate = new Date(dateOfBirth);
-      if (isNaN(parsedDate)) {
-        throw new Error('Invalid birth date format');
+      if (isNaN(parsedDate.getTime())) {
+        return res
+          .status(400)
+          .json({ error: 'Format de date de naissance invalide' });
       }
-
       const customer = await prisma.customer.create({
         data: {
           fullName,
           address,
           phoneNumber,
-          nni,
+          nni: String(nni),
           birthDate: parsedDate,
           drivingLicense,
-          user: user_id ? { connect: { id: user_id } } : undefined,
+          user_id,
         },
       });
       return res.status(201).json(customer);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      console.error('Erreur lors de la création du client :', error);
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
   updateCustomer: async (req, res) => {
-    const { id } = req.params;
-    const {
-      fullName,
-      address,
-      phoneNumber,
-      nni,
-      birthDate,
-      drivingLicense,
-      user_id,
-    } = req.body;
+    const customerId = parseInt(req.params.id, 10);
+    const { fullName, address, phoneNumber, nni, dateOfBirth, drivingLicense } =
+      req.body;
+    const user_id = req.user.user_id;
 
     try {
+      // Vérification de l'existence du client et de la correspondance du propriétaire
       const customer = await prisma.customer.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: customerId },
       });
-
       if (!customer) {
-        return res.status(404).json({ error: 'Customer not found' });
+        return res.status(404).json({ error: 'Client non trouvé.' });
+      }
+      if (customer.user_id !== user_id) {
+        return res
+          .status(403)
+          .json({ error: 'Non autorisé à modifier ce client.' });
       }
 
-      if (phoneNumber)
-        await CustomerValidators.checkUniquePhoneNumber(phoneNumber, id);
-      if (nni) await CustomerValidators.checkUniqueNni(nni, id);
-      if (drivingLicense)
-        await CustomerValidators.checkUniqueDrivingLicense(drivingLicense, id);
-
+      // Mise à jour des informations du client
       const updatedData = {
-        fullName: fullName || customer.fullName,
-        address: address || customer.address,
-        phoneNumber: phoneNumber || customer.phoneNumber,
-        nni: nni || customer.nni,
-        birthDate: birthDate ? new Date(birthDate) : customer.birthDate,
-        drivingLicense: drivingLicense || customer.drivingLicense,
-        user: user_id ? { connect: { id: user_id } } : undefined,
+        fullName,
+        address,
+        phoneNumber,
+        nni,
+        drivingLicense,
+        user_id,
       };
+      if (dateOfBirth) {
+        const parsedDate = new Date(dateOfBirth);
+        if (isNaN(parsedDate.getTime())) {
+          return res
+            .status(400)
+            .json({ error: 'Format de date de naissance invalide' });
+        }
+        updatedData.birthDate = parsedDate;
+      }
 
       const updatedCustomer = await prisma.customer.update({
-        where: { id: parseInt(id) },
+        where: { id: customerId },
         data: updatedData,
       });
       return res.status(200).json(updatedCustomer);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      console.error(error);
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
+    }
+  },
+
+  getCustomerById: async (req, res) => {
+    const customerId = parseInt(req.params.id, 10);
+
+    try {
+      const customer = await prisma.customer.findUnique({
+        where: { id: customerId },
+      });
+      if (!customer) {
+        return res.status(404).json({ error: 'Client non trouvé.' });
+      }
+      return res.status(200).json(customer);
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({ errors: [{ message: error.message }] });
     }
   },
 
@@ -103,54 +120,34 @@ const customerController = {
       const customers = await prisma.customer.findMany();
       return res.status(200).json(customers);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
-    }
-  },
-
-  getCustomerById: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const customer = await prisma.customer.findUnique({
-        where: { id: parseInt(id) },
-      });
-      if (!customer) {
-        return res.status(404).json({ error: 'Customer not found' });
-      }
-      return res.status(200).json(customer);
-    } catch (error) {
-      return res.status(400).json({ error: error.message });
+      console.error(error);
+      return res.status(400).json({ errors: [{ message: error.message }] });
     }
   },
 
   deleteCustomer: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const existingReservations = await prisma.reservation.findMany({
-        where: { id_customer: parseInt(id) },
-      });
+    const customerId = parseInt(req.params.id, 10);
+    const user_id = req.user.user_id;
 
-      if (existingReservations.length > 0) {
+    try {
+      // Vérification de l'existence du client et de la correspondance du propriétaire
+      const customer = await prisma.customer.findUnique({
+        where: { id: customerId },
+      });
+      if (!customer) {
+        return res.status(404).json({ error: 'Client non trouvé.' });
+      }
+      if (customer.user_id !== user_id) {
         return res
-          .status(400)
-          .json({ error: 'Cannot delete customer with active reservations' });
+          .status(403)
+          .json({ error: 'Non autorisé à supprimer ce client.' });
       }
 
-      await prisma.customer.delete({ where: { id: parseInt(id) } });
-      return res.status(200).json({ message: 'Customer deleted successfully' });
+      await prisma.customer.delete({ where: { id: customerId } });
+      return res.status(200).json({ message: 'Client supprimé avec succès.' });
     } catch (error) {
-      return res.status(400).json({ error: error.message });
-    }
-  },
-
-  getCustomerHistory: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const reservations = await prisma.reservation.findMany({
-        where: { id_customer: parseInt(id) },
-      });
-      return res.status(200).json(reservations);
-    } catch (error) {
-      return res.status(400).json({ error: error.message });
+      console.error(error);
+      return res.status(400).json({ errors: [{ message: error.message }] });
     }
   },
 };

@@ -1,14 +1,13 @@
 import { check, validationResult } from 'express-validator';
 import prisma from '../config/db.js';
 
-export const validateContractData = [
+export const contractValidators = [
   check('startDate')
     .notEmpty()
     .withMessage('Start date is required.')
     .isISO8601()
     .toDate()
     .withMessage('Invalid date format for start date.'),
-
   check('endDate')
     .optional()
     .isISO8601()

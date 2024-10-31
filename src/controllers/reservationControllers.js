@@ -1,6 +1,5 @@
 import prisma from '../config/db.js';
 import { validationResult } from 'express-validator';
-import { reservationValidators } from '../validators/reservationValidators.js';
 
 export const reservationController = {
   createReservation: async (req, res) => {
@@ -9,7 +8,9 @@ export const reservationController = {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status, user_id } = req.body;
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
+      req.body;
+    const user_id = req.user.id; // Récupération automatique de l'ID utilisateur
 
     try {
       const existingReservations = await prisma.reservation.findMany({
@@ -38,16 +39,11 @@ export const reservationController = {
         },
       });
 
-      await prisma.vehicle.update({
-        where: { id: vehicle_id },
-        data: { status },
-      });
       return res.status(201).json(reservation);
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
   },
-
   getAllReservations: async (req, res) => {
     try {
       const reservations = await prisma.reservation.findMany();
@@ -125,7 +121,9 @@ export const reservationController = {
         where: { id: parseInt(id) },
       });
 
-      return res.status(204).json({ message: 'Reservation deleted successfully' });
+      return res
+        .status(204)
+        .json({ message: 'Reservation deleted successfully' });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

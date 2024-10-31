@@ -4,7 +4,8 @@ CREATE TABLE "users" (
     "fullName" VARCHAR(100) NOT NULL,
     "email" VARCHAR(100) NOT NULL,
     "phoneNumber" VARCHAR(20) NOT NULL,
-    "status" VARCHAR(25) NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
+    "status" BOOLEAN NOT NULL,
     "role" VARCHAR(50) NOT NULL DEFAULT 'agent',
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
@@ -18,7 +19,7 @@ CREATE TABLE "customers" (
     "nni" INTEGER NOT NULL,
     "birthDate" TIMESTAMP(3) NOT NULL,
     "drivingLicense" VARCHAR(50) NOT NULL,
-    "phoneNumber" INTEGER NOT NULL,
+    "phoneNumber" VARCHAR(20) NOT NULL,
     "user_id" INTEGER,
 
     CONSTRAINT "customers_pkey" PRIMARY KEY ("id")
@@ -66,7 +67,6 @@ CREATE TABLE "contracts" (
     "returnDate" TIMESTAMP(3),
     "totalAmount" DECIMAL(10,2) NOT NULL,
     "status" VARCHAR(50) NOT NULL,
-    "reservation_id" INTEGER,
     "vehicle_id" INTEGER NOT NULL,
     "customer_id" INTEGER NOT NULL,
     "user_id" INTEGER,
@@ -109,9 +109,6 @@ ALTER TABLE "reservations" ADD CONSTRAINT "reservations_customer_id_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "reservations" ADD CONSTRAINT "reservations_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "contracts" ADD CONSTRAINT "contracts_reservation_id_fkey" FOREIGN KEY ("reservation_id") REFERENCES "reservations"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "contracts" ADD CONSTRAINT "contracts_vehicle_id_fkey" FOREIGN KEY ("vehicle_id") REFERENCES "vehicules"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

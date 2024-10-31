@@ -1,142 +1,66 @@
-const contractController = {
-  addContract: async (req, res) => {
+import prisma from '../config/db.js';
+import { validationResult } from 'express-validator';
+import { contractValidators } from '../validators/contractValidators.js';
+
+export const contractController = {
+  createContract: async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
     const {
+      contractNumber,
       startDate,
-      endDate,
+      returnDate,
       totalAmount,
       status,
       vehicle_id,
       customer_id,
-      user_id,
       reservation_id,
     } = req.body;
+    const user_id = req.user.id; // Récupération automatique de l'ID utilisateur
 
     try {
+      const existingReservations = await prisma.reservation.findMany({
+        where: {
+          vehicle_id,
+          startDate: { lte: new Date(returnDate) },
+          endDate: { gte: new Date(startDate) },
+        },
+      });
+
+      if (existingReservations.length > 0) {
+        return res.status(400).json({
+          error: 'Vehicle is already reserved for the selected dates',
+        });
+      }
+
       const contract = await prisma.contract.create({
         data: {
+          contractNumber,
           startDate: new Date(startDate),
-          endDate: endDate ? new Date(endDate) : null,
+          returnDate: returnDate ? new Date(returnDate) : null,
           totalAmount,
           status,
           vehicle_id,
           customer_id,
-          user_id,
           reservation_id,
+          user_id,
         },
       });
-      return res
-        .status(201)
-        .json({ message: 'Contract created successfully.', contract });
+
+      return res.status(201).json(contract);
     } catch (error) {
-      console.error('Error creating contract:', error);
-      return res
-        .status(500)
-        .json({
-          error:
-            'An error occurred while creating the contract. Please try again.',
-        });
-    }
-  },
-
-  updateContract: async (req, res) => {
-    const { id } = req.params;
-    const {
-      startDate,
-      endDate,
-      totalAmount,
-      status,
-      vehicle_id,
-      customer_id,
-      user_id,
-      reservation_id,
-    } = req.body;
-
-    try {
-      const contract = await prisma.contract.findUnique({
-        where: { id: parseInt(id) },
-      });
-      if (!contract)
-        return res
-          .status(404)
-          .json({
-            error: 'Contract not found. Please provide a valid contract ID.',
-          });
-
-      const updatedContract = await prisma.contract.update({
-        where: { id: parseInt(id) },
-        data: {
-          startDate: new Date(startDate),
-          endDate: endDate ? new Date(endDate) : null,
-          totalAmount,
-          status,
-          vehicle_id,
-          customer_id,
-          user_id,
-          reservation_id,
-        },
-      });
-      return res
-        .status(200)
-        .json({ message: 'Contract updated successfully.', updatedContract });
-    } catch (error) {
-      console.error('Error updating contract:', error);
-      return res
-        .status(500)
-        .json({
-          error:
-            'An error occurred while updating the contract. Please try again.',
-        });
-    }
-  },
-
-  deleteContract: async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      const contract = await prisma.contract.findUnique({
-        where: { id: parseInt(id) },
-      });
-      if (!contract)
-        return res
-          .status(404)
-          .json({
-            error: 'Contract not found. Please provide a valid contract ID.',
-          });
-
-      await prisma.contract.delete({ where: { id: parseInt(id) } });
-      return res
-        .status(200)
-        .json({ message: 'Contract deleted successfully.' });
-    } catch (error) {
-      console.error('Error deleting contract:', error);
-      return res
-        .status(500)
-        .json({
-          error:
-            'An error occurred while deleting the contract. Please try again.',
-        });
+      return res.status(500).json({ error: error.message });
     }
   },
 
   getAllContracts: async (req, res) => {
     try {
-      const contracts = await prisma.contract.findMany({
-        include: {
-          vehicle: true,
-          customer: true,
-          user: true,
-          reservation: true,
-        },
-      });
+      const contracts = await prisma.contract.findMany();
       return res.status(200).json(contracts);
     } catch (error) {
-      console.error('Error fetching contracts:', error);
-      return res
-        .status(500)
-        .json({
-          error:
-            'An error occurred while fetching contracts. Please try again.',
-        });
+      return res.status(500).json({ error: error.message });
     }
   },
 
@@ -146,28 +70,93 @@ const contractController = {
       const contract = await prisma.contract.findUnique({
         where: { id: parseInt(id) },
         include: {
-          vehicle: true,
           customer: true,
-          user: true,
+          vehicle: true,
           reservation: true,
+          user: true,
         },
       });
-      if (!contract)
-        return res
-          .status(404)
-          .json({
-            error: 'Contract not found. Please provide a valid contract ID.',
-          });
-
+      if (!contract) {
+        return res.status(404).json({ message: 'Contract not found' });
+      }
       return res.status(200).json(contract);
     } catch (error) {
-      console.error('Error fetching contract:', error);
-      return res
-        .status(500)
-        .json({
-          error:
-            'An error occurred while fetching the contract. Please try again.',
+      return res.status(500).json({ error: error.message });
+    }
+  },
+
+  updateContract: async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const {
+      startDate,
+      returnDate,
+      totalAmount,
+      status,
+      vehicle_id,
+      customer_id,
+      user_id,
+    } = req.body;
+
+    try {
+      const contract = await prisma.contract.findUnique({
+        where: { id: parseInt(id) },
+      });
+      if (!contract) {
+        return res.status(404).json({ message: 'Contract not found' });
+      }
+
+      const existingReservations = await prisma.reservation.findMany({
+        where: {
+          vehicle_id,
+          startDate: { lte: new Date(returnDate) },
+          endDate: { gte: new Date(startDate) },
+        },
+      });
+
+      if (existingReservations.length > 0) {
+        return res.status(400).json({
+          error: 'Vehicle is already reserved for the selected dates',
         });
+      }
+
+      const updatedContract = await prisma.contract.update({
+        where: { id: parseInt(id) },
+        data: {
+          startDate: new Date(startDate),
+          returnDate: returnDate ? new Date(returnDate) : null,
+          totalAmount,
+          status,
+          vehicle_id,
+          customer_id,
+          user_id,
+        },
+      });
+
+      return res.status(200).json(updatedContract);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  },
+
+  deleteContract: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const contract = await prisma.contract.findUnique({
+        where: { id: parseInt(id) },
+      });
+
+      if (!contract) {
+        return res.status(404).json({ message: 'Contract not found' });
+      }
+      await prisma.contract.delete({ where: { id: parseInt(id) } });
+      return res.status(204).json({ message: 'Contract deleted successfully' });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
   },
 };

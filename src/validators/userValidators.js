@@ -3,69 +3,71 @@ import prisma from '../config/db.js';
 
 export const UserValidators = {
   checkUniquePhoneNumber: async (phoneNumber, userId = null) => {
-    const user = await prisma.user.findUnique({
-      where: { phoneNumber },
-    });
+    const user = await prisma.user.findUnique({ where: { phoneNumber } });
     if (user && user.id !== userId) {
       throw new Error(
-        'Phone number is already associated with another account.'
+        'Ce numéro de téléphone est déjà associé à un autre compte.'
       );
     }
   },
   checkUniqueEmail: async (email, userId = null) => {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (user && user.id !== userId) {
-      throw new Error('This email is already registered.');
+      throw new Error('Cet email est déjà enregistré.');
     }
   },
   checkValidStatus: (status) => {
     const validStatuses = ['active', 'inactive'];
     if (!validStatuses.includes(status)) {
-      throw new Error('Status must be either "active" or "inactive".');
+      throw new Error('Le statut doit être "active" ou "inactive".');
     }
   },
 };
 
-// Middleware for validating user data
-// Validators/userValidators.js
-
+// Middleware pour valider les données d'un utilisateur
 export const validateUserData = [
   check('fullName')
     .optional()
     .isLength({ max: 60 })
-    .withMessage('Full name cannot exceed 60 characters.'),
-
+    .withMessage('Le nom complet ne peut pas dépasser 60 caractères.'),
   check('email')
     .optional()
     .isEmail()
-    .withMessage('Email must be a valid email address.')
+    .withMessage('L\'email doit être une adresse email valide.')
     .custom(async (email, { req }) => {
       if (email) await UserValidators.checkUniqueEmail(email, req.params.id);
     }),
-
   check('phoneNumber')
     .optional()
     .isNumeric()
-    .withMessage('Phone number must be numeric.')
+    .withMessage('Le numéro de téléphone doit être numérique.')
     .isLength({ min: 8, max: 8 })
-    .withMessage('Phone number must be exactly 8 digits.')
+    .withMessage('Le numéro de téléphone doit contenir exactement 8 chiffres.')
     .custom(async (phoneNumber, { req }) => {
       if (phoneNumber)
         await UserValidators.checkUniquePhoneNumber(phoneNumber, req.params.id);
     }),
-
+  check('password')
+    .optional()
+    .isLength({ min: 8 })
+    .withMessage('Le mot de passe doit contenir au moins 8 caractères.')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*\s).*$/, 'i')
+    .withMessage(
+      'Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule, un chiffre, et ne doit pas contenir d\'espaces.'
+    ),
   check('status')
     .optional()
     .custom((status) => {
       UserValidators.checkValidStatus(status);
       return true;
     }),
-
-  check('role').optional().isString().withMessage('Role must be a string.'),
+  check('role')
+    .optional()
+    .isString()
+    .withMessage('Le rôle doit être une chaîne de caractères.'),
 ];
 
+// Middleware pour gérer les erreurs de validation
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -73,7 +75,7 @@ export const handleValidationErrors = (req, res, next) => {
       errors: errors.array().map((err) => ({
         field: err.param,
         message: err.msg,
-        suggestion: 'Please provide a valid input.',
+        suggestion: 'Veuillez fournir une entrée valide.',
       })),
     });
   }

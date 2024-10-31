@@ -1,30 +1,32 @@
+// middlewares/authMiddleware.js
 import jwt from 'jsonwebtoken';
 
-export const authMiddleware = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return res.status(401).json({ error: 'Access denied. Token missing.' });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token)
+    return res.status(401).json({ error: 'Utilisateur non authentifié.' });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token invalide.' });
+    console.log(user); // This should show the token payload with `user_id`
+    if (!user.user_id)
+      return res
+        .status(403)
+        .json({ error: 'ID utilisateur manquant dans le token.' });
+    req.user = user;
     next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
+  });
 };
 
-export const checkRole = (role) => (req, res, next) => {
-  if (req.user.role !== role) {
-    return res.status(403).json({ error: 'Access denied. Unauthorized role.' });
-  }
-  next();
+export const authorizeRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Accès refusé.' });
+    }
+    next();
+  };
 };
 
-// const authMiddleware = (req, res, next) => {
-//   // Exemple : vérifier le token et récupérer l'utilisateur
-//   const token = req.headers['authorization'];
-//   // Logique pour vérifier le token et récupérer l'utilisateur
-//   req.user = { id: userId }; // Assignez l'ID de l'utilisateur
-//   next();
-// };
+export default authenticateToken;

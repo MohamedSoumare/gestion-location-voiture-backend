@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "customers" ALTER COLUMN "nni" SET DATA TYPE VARCHAR(25);

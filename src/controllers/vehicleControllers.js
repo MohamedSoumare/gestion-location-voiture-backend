@@ -1,9 +1,7 @@
-// vehicleController.js
 import prisma from '../config/db.js';
 import { validationResult } from 'express-validator';
 
 export const vehicleController = {
-  // Ajouter un véhicule
   addVehicle: async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -22,6 +20,8 @@ export const vehicleController = {
       transmissionType,
       airConditioning,
       dailyRate,
+      status,
+      user_id,
     } = req.body;
 
     try {
@@ -38,7 +38,8 @@ export const vehicleController = {
           transmissionType,
           airConditioning,
           dailyRate,
-          status: 'available',
+          status,
+          user_id,
         },
       });
       return res.status(201).json(vehicle);
@@ -47,7 +48,31 @@ export const vehicleController = {
     }
   },
 
-  // Récupérer tous les véhicules
+  updateVehicle: async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const dataToUpdate = {};
+
+    for (const key in req.body) {
+      if (req.body[key] !== undefined) {
+        dataToUpdate[key] = req.body[key];
+      }
+    }
+
+    try {
+      const vehicle = await prisma.vehicle.update({
+        where: { id: parseInt(id, 10) },
+        data: dataToUpdate,
+      });
+      return res.status(200).json(vehicle);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  },
   getAllVehicles: async (req, res) => {
     try {
       const vehicles = await prisma.vehicle.findMany();
@@ -57,12 +82,11 @@ export const vehicleController = {
     }
   },
 
-  // Récupérer un véhicule par ID
   getVehicleById: async (req, res) => {
     const { id } = req.params;
     try {
       const vehicle = await prisma.vehicle.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: parseInt(id, 10) },
       });
       if (!vehicle) {
         return res.status(404).json({ message: 'Vehicle not found' });
@@ -73,57 +97,11 @@ export const vehicleController = {
     }
   },
 
-  // Mettre à jour un véhicule
-  updateVehicle: async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { id } = req.params;
-    const {
-      brand,
-      model,
-      year,
-      registrationPlate,
-      seatCount,
-      doorCount,
-      color,
-      fuelType,
-      transmissionType,
-      airConditioning,
-      dailyRate,
-    } = req.body;
-
-    try {
-      const vehicle = await prisma.vehicle.update({
-        where: { id: parseInt(id) },
-        data: {
-          brand,
-          model,
-          year,
-          registrationPlate,
-          seatCount,
-          doorCount,
-          color,
-          fuelType,
-          transmissionType,
-          airConditioning,
-          dailyRate,
-        },
-      });
-      return res.status(200).json(vehicle);
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
-  },
-
-  // Supprimer un véhicule
   deleteVehicle: async (req, res) => {
     const { id } = req.params;
     try {
       await prisma.vehicle.delete({
-        where: { id: parseInt(id) },
+        where: { id: parseInt(id, 10) },
       });
       return res.status(204).json({ message: 'Vehicle deleted successfully' });
     } catch (error) {
@@ -131,4 +109,5 @@ export const vehicleController = {
     }
   },
 };
+
 export default vehicleController;
