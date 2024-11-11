@@ -5,31 +5,30 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
 const userController = {
+
   addUser: async (req, res) => {
     const { fullName, email, phoneNumber, password, status, role } = req.body;
     const user_id = req.user?.id;
 
     try {
-      // Vérification de l'unicité de l'email et du numéro de téléphone
+    
       await UserValidators.checkUniqueEmail(email);
       await UserValidators.checkUniquePhoneNumber(phoneNumber);
 
-      // Vérification de la présence du mot de passe
       if (!password) {
         return res.status(400).json({ error: 'Le mot de passe est requis' });
       }
 
-      // Hachage du mot de passe
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Création de l'utilisateur
+      // Création de  l'utilisateur
       const user = await prisma.user.create({
         data: {
           fullName,
           email,
           phoneNumber,
           password: hashedPassword,
-          status: status !== 'inactive',
+          status: status,
           role: role || 'employe',
           user_id,
         },
@@ -47,51 +46,59 @@ const userController = {
   },
 
   updateUser: async (req, res) => {
-    const { id } = req.params;
+    const userId = parseInt(req.params.id, 10);
+  
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'ID invalide.' });
+    }
+  
     const { fullName, email, phoneNumber, password, status, role } = req.body;
-
+  
+    console.log("Status reçu : ", status); // Vérification du statut
+  
     try {
       const user = await prisma.user.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: userId },
       });
+  
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
-
+  
       const updatedData = {};
+  
       if (fullName) updatedData.fullName = fullName;
       if (email) {
-        await UserValidators.checkUniqueEmail(email, id);
         updatedData.email = email;
       }
       if (phoneNumber) {
-        await UserValidators.checkUniquePhoneNumber(phoneNumber, id);
         updatedData.phoneNumber = phoneNumber;
       }
       if (password) updatedData.password = await bcrypt.hash(password, 12);
-      if (status) updatedData.status = status === 'active';
       if (role) updatedData.role = role;
-
+  
+      // Mise à jour du statut
+      if (status !== undefined) updatedData.status = status;
+  
       const updatedUser = await prisma.user.update({
-        where: { id: parseInt(id) },
+        where: { id: userId },
         data: updatedData,
       });
+  
       return res.status(200).json(updatedUser);
     } catch (error) {
-      console.error(error);
-      return res
-        .status(400)
-        .json({
-          errors: [
-            {
-              message: error.message,
-              suggestion: 'Veuillez réessayer plus tard.',
-            },
-          ],
-        });
+      console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
+      return res.status(400).json({
+        errors: [
+          {
+            message: error.message,
+            suggestion: 'Veuillez réessayer plus tard.',
+          },
+        ],
+      });
     }
   },
-
+  
   getAllUsers: async (req, res) => {
     try {
       const users = await prisma.user.findMany();

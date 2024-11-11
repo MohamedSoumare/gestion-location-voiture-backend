@@ -2,13 +2,13 @@ import prisma from '../config/db.js';
 
 const customerController = {
   addCustomer: async (req, res) => {
-    const { fullName, address, phoneNumber, nni, dateOfBirth, drivingLicense } =
+    const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } =
       req.body;
-    const user_id = req.user.user_id;
+    // const user_id = req.user.user_id;
 
-    if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
-    }
+    // if (!user_id) {
+    //   return res.status(401).json({ error: 'Utilisateur non authentifié.' });
+    // }
     try {
       const existingCustomer = await prisma.customer.findFirst({
         where: {
@@ -24,7 +24,7 @@ const customerController = {
               'Le numéro de téléphone, NNI ou permis de conduire est déjà utilisé.',
           });
       }
-      const parsedDate = new Date(dateOfBirth);
+      const parsedDate = new Date(birthDate);
       if (isNaN(parsedDate.getTime())) {
         return res
           .status(400)
@@ -38,7 +38,7 @@ const customerController = {
           nni: String(nni),
           birthDate: parsedDate,
           drivingLicense,
-          user_id,
+          // user_id,
         },
       });
       return res.status(201).json(customer);
@@ -50,23 +50,22 @@ const customerController = {
 
   updateCustomer: async (req, res) => {
     const customerId = parseInt(req.params.id, 10);
-    const { fullName, address, phoneNumber, nni, dateOfBirth, drivingLicense } =
+    const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } =
       req.body;
-    const user_id = req.user.user_id;
-
+    // const user_id = req.user.user_id;
     try {
-      // Vérification de l'existence du client et de la correspondance du propriétaire
+     
       const customer = await prisma.customer.findUnique({
         where: { id: customerId },
       });
       if (!customer) {
         return res.status(404).json({ error: 'Client non trouvé.' });
       }
-      if (customer.user_id !== user_id) {
-        return res
-          .status(403)
-          .json({ error: 'Non autorisé à modifier ce client.' });
-      }
+      // if (customer.user_id !== user_id) {
+      //   return res
+      //     .status(403)
+      //     .json({ error: 'Non autorisé à modifier ce client.' });
+      // }
 
       // Mise à jour des informations du client
       const updatedData = {
@@ -74,11 +73,12 @@ const customerController = {
         address,
         phoneNumber,
         nni,
+        birthDate,
         drivingLicense,
-        user_id,
+        // user_id,
       };
-      if (dateOfBirth) {
-        const parsedDate = new Date(dateOfBirth);
+      if (birthDate) {
+        const parsedDate = new Date(birthDate);
         if (isNaN(parsedDate.getTime())) {
           return res
             .status(400)
@@ -127,7 +127,7 @@ const customerController = {
 
   deleteCustomer: async (req, res) => {
     const customerId = parseInt(req.params.id, 10);
-    const user_id = req.user.user_id;
+    // const user_id = req.user.user_id;
 
     try {
       // Vérification de l'existence du client et de la correspondance du propriétaire
@@ -137,11 +137,11 @@ const customerController = {
       if (!customer) {
         return res.status(404).json({ error: 'Client non trouvé.' });
       }
-      if (customer.user_id !== user_id) {
-        return res
-          .status(403)
-          .json({ error: 'Non autorisé à supprimer ce client.' });
-      }
+      // if (customer.user_id !== user_id) {
+      //   return res
+      //     .status(403)
+      //     .json({ error: 'Non autorisé à supprimer ce client.' });
+      // }
 
       await prisma.customer.delete({ where: { id: customerId } });
       return res.status(200).json({ message: 'Client supprimé avec succès.' });
