@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './routes/userRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
-import vehicleRoutes from './routes/vechicleRoutes.js'; 
+import vehicleRoutes from './routes/vechicleRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
 import contractRoutes from './routes/contractRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';

@@ -5,13 +5,11 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
 const userController = {
-
   addUser: async (req, res) => {
     const { fullName, email, phoneNumber, password, status, role } = req.body;
     const user_id = req.user?.id;
 
     try {
-    
       await UserValidators.checkUniqueEmail(email);
       await UserValidators.checkUniquePhoneNumber(phoneNumber);
 
@@ -47,26 +45,26 @@ const userController = {
 
   updateUser: async (req, res) => {
     const userId = parseInt(req.params.id, 10);
-  
+
     if (isNaN(userId)) {
       return res.status(400).json({ error: 'ID invalide.' });
     }
-  
+
     const { fullName, email, phoneNumber, password, status, role } = req.body;
-  
-    console.log("Status reçu : ", status); // Vérification du statut
-  
+
+    
+
     try {
       const user = await prisma.user.findUnique({
         where: { id: userId },
       });
-  
+
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
-  
+
       const updatedData = {};
-  
+
       if (fullName) updatedData.fullName = fullName;
       if (email) {
         updatedData.email = email;
@@ -76,18 +74,17 @@ const userController = {
       }
       if (password) updatedData.password = await bcrypt.hash(password, 12);
       if (role) updatedData.role = role;
-  
-      // Mise à jour du statut
+
       if (status !== undefined) updatedData.status = status;
-  
+
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: updatedData,
       });
-  
+
       return res.status(200).json(updatedUser);
     } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
+      console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
       return res.status(400).json({
         errors: [
           {
@@ -98,23 +95,21 @@ const userController = {
       });
     }
   },
-  
+
   getAllUsers: async (req, res) => {
     try {
       const users = await prisma.user.findMany();
       return res.status(200).json(users);
     } catch (error) {
       console.error(error);
-      return res
-        .status(400)
-        .json({
-          errors: [
-            {
-              message: error.message,
-              suggestion: 'Veuillez réessayer plus tard.',
-            },
-          ],
-        });
+      return res.status(400).json({
+        errors: [
+          {
+            message: error.message,
+            suggestion: 'Veuillez réessayer plus tard.',
+          },
+        ],
+      });
     }
   },
 
@@ -130,16 +125,14 @@ const userController = {
       return res.status(200).json(user);
     } catch (error) {
       console.error(error);
-      return res
-        .status(400)
-        .json({
-          errors: [
-            {
-              message: error.message,
-              suggestion: 'Veuillez réessayer plus tard.',
-            },
-          ],
-        });
+      return res.status(400).json({
+        errors: [
+          {
+            message: error.message,
+            suggestion: 'Veuillez réessayer plus tard.',
+          },
+        ],
+      });
     }
   },
 
@@ -159,16 +152,14 @@ const userController = {
         .json({ message: 'Utilisateur supprimé avec succès.' });
     } catch (error) {
       console.error(error);
-      return res
-        .status(400)
-        .json({
-          errors: [
-            {
-              message: error.message,
-              suggestion: 'Vérifiez l\'utilisateur et réessayez.',
-            },
-          ],
-        });
+      return res.status(400).json({
+        errors: [
+          {
+            message: error.message,
+            suggestion: 'Vérifiez l\'utilisateur et réessayez.',
+          },
+        ],
+      });
     }
   },
 
@@ -204,11 +195,9 @@ const userController = {
       return res.status(200).json({ token, role: user.role });
     } catch (error) {
       console.error('Erreur lors de la tentative de connexion:', error);
-      return res
-        .status(500)
-        .json({
-          error: 'Une erreur est survenue. Veuillez réessayer plus tard.',
-        });
+      return res.status(500).json({
+        error: 'Une erreur est survenue. Veuillez réessayer plus tard.',
+      });
     }
   },
 

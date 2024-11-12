@@ -29,25 +29,10 @@ router.put(
   handleValidationErrors,
   userController.updateUser
 );
-router.get(
-  '/users',
-  userController.getAllUsers
-);
-router.delete(
-  '/users/delete/:id',
-  userController.deleteUser
-);
-router.put(
-  '/update-password',
-  userController.updatePassword
-);
-router.post(
-  '/reset-password',
-  userController.resetPassword
-);
-router.get(
-  '/users/:id',
-  userController.getUserById
-);
+router.get('/users', userController.getAllUsers);
+router.delete('/users/delete/:id', userController.deleteUser);
+router.put('/update-password', userController.updatePassword);
+router.post('/reset-password', userController.resetPassword);
+router.get('/users/:id', userController.getUserById);
 
 export default router;

@@ -39,12 +39,16 @@ export const vehicleController = {
           airConditioning,
           dailyRate,
           status,
-          // user_id, 
+          // user_id,
         },
       });
       return res.status(201).json(vehicle);
     } catch (error) {
-      return res.status(500).json({ error: 'Erreur lors de l\'ajout du véhicule: ' + error.message });
+      return res
+        .status(500)
+        .json({
+          error: 'Erreur lors de l\'ajout du véhicule: ' + error.message,
+        });
     }
   },
 
@@ -72,7 +76,11 @@ export const vehicleController = {
       });
       return res.status(200).json(vehicle);
     } catch (error) {
-      return res.status(500).json({ error: 'Erreur lors de la mise à jour du véhicule: ' + error.message });
+      return res
+        .status(500)
+        .json({
+          error: 'Erreur lors de la mise à jour du véhicule: ' + error.message,
+        });
     }
   },
 
@@ -82,7 +90,12 @@ export const vehicleController = {
       const vehicles = await prisma.vehicle.findMany();
       return res.status(200).json(vehicles);
     } catch (error) {
-      return res.status(500).json({ error: 'Erreur lors de la récupération des véhicules: ' + error.message });
+      return res
+        .status(500)
+        .json({
+          error:
+            'Erreur lors de la récupération des véhicules: ' + error.message,
+        });
     }
   },
 
@@ -98,7 +111,11 @@ export const vehicleController = {
       }
       return res.status(200).json(vehicle);
     } catch (error) {
-      return res.status(500).json({ error: 'Erreur lors de la récupération du véhicule: ' + error.message });
+      return res
+        .status(500)
+        .json({
+          error: 'Erreur lors de la récupération du véhicule: ' + error.message,
+        });
     }
   },
 
@@ -109,9 +126,15 @@ export const vehicleController = {
       await prisma.vehicle.delete({
         where: { id: parseInt(id, 10) },
       });
-      return res.status(204).json({ message: 'Véhicule supprimé avec succès.' });
+      return res
+        .status(204)
+        .json({ message: 'Véhicule supprimé avec succès.' });
     } catch (error) {
-      return res.status(500).json({ error: 'Erreur lors de la suppression du véhicule: ' + error.message });
+      return res
+        .status(500)
+        .json({
+          error: 'Erreur lors de la suppression du véhicule: ' + error.message,
+        });
     }
   },
 };

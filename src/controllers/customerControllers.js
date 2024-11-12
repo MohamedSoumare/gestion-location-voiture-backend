@@ -17,12 +17,10 @@ const customerController = {
       });
 
       if (existingCustomer) {
-        return res
-          .status(400)
-          .json({
-            error:
-              'Le numéro de téléphone, NNI ou permis de conduire est déjà utilisé.',
-          });
+        return res.status(400).json({
+          error:
+            'Le numéro de téléphone, NNI ou permis de conduire est déjà utilisé.',
+        });
       }
       const parsedDate = new Date(birthDate);
       if (isNaN(parsedDate.getTime())) {
@@ -54,7 +52,6 @@ const customerController = {
       req.body;
     // const user_id = req.user.user_id;
     try {
-     
       const customer = await prisma.customer.findUnique({
         where: { id: customerId },
       });

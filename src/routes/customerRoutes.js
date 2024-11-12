@@ -27,17 +27,8 @@ router.put(
 //   authorizeRole(['admin', 'employe']),
 //   customerController.getCustomerById
 // );
-router.get(
-  '/customers/:id',
-  customerController.getCustomerById
-);
-router.delete(
-  '/customers/delete/:id',
-  customerController.deleteCustomer
-);
-router.get(
-  '/customers',
-  customerController.getAllCustomers
-);
+router.get('/customers/:id', customerController.getCustomerById);
+router.delete('/customers/delete/:id', customerController.deleteCustomer);
+router.get('/customers', customerController.getAllCustomers);
 
 export default router;
