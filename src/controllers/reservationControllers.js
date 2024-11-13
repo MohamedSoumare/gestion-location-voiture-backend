@@ -9,15 +9,12 @@ export const reservationController = {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
-      req.body;
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } = req.body;
 
     if (!vehicle_id || !customer_id || !startDate || !endDate) {
-      return res
-        .status(400)
-        .json({
-          error: 'Required fields: vehicle_id, customer_id, startDate, endDate',
-        });
+      return res.status(400).json({
+        error: 'Required fields: vehicle_id, customer_id, startDate, endDate',
+      });
     }
 
     const startDateParsed = new Date(startDate);
@@ -28,10 +25,11 @@ export const reservationController = {
     }
 
     try {
+      // Vérifie si le véhicule est disponible pour la période spécifiée
       const existingReservations = await prisma.reservation.findMany({
         where: {
           vehicle_id,
-          status: { in: ['reserved', 'maintenance', 'cancelled', 'waiting'] },
+          status: 'confirmed', // Vérifie uniquement les réservations confirmées
           OR: [
             {
               startDate: { lte: endDateParsed },
@@ -41,15 +39,14 @@ export const reservationController = {
         },
       });
 
+      // Si une réservation confirmée existe dans cette période, retourne une erreur
       if (existingReservations.length > 0) {
-        return res
-          .status(400)
-          .json({
-            error:
-              'Vehicle is already reserved or in maintenance during these dates',
-          });
+        return res.status(400).json({
+          error: 'Vehicle is already reserved during these dates.',
+        });
       }
 
+      // Crée une nouvelle réservation si le véhicule est disponible
       const reservation = await prisma.reservation.create({
         data: {
           vehicle_id,
@@ -73,6 +70,8 @@ export const reservationController = {
       return res
         .status(500)
         .json({ error: `Failed to create reservation: ${error.message}` });
+    } finally {
+      await prisma.$disconnect();
     }
   },
 
@@ -92,7 +91,6 @@ export const reservationController = {
         .json({ error: `Failed to retrieve reservations: ${error.message}` });
     }
   },
-
   async getReservationById(req, res) {
     const { id } = req.params;
     try {
@@ -120,39 +118,71 @@ export const reservationController = {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+  
     const { id } = req.params;
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
-      req.body;
-
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } = req.body;
+  
+    const startDateParsed = new Date(startDate);
+    const endDateParsed = new Date(endDate);
+  
+    if (isNaN(startDateParsed) || isNaN(endDateParsed)) {
+      return res.status(400).json({ error: 'Invalid date format' });
+    }
+  
     try {
+      // Vérifie si la réservation existe
       const reservation = await prisma.reservation.findUnique({
         where: { id: parseInt(id) },
       });
       if (!reservation) {
         return res.status(404).json({ error: 'Reservation not found' });
       }
-
+  
+      // Vérifie si le véhicule est disponible pour la période spécifiée
+      const conflictingReservations = await prisma.reservation.findMany({
+        where: {
+          vehicle_id,
+          status: 'confirmed',
+          id: { not: parseInt(id) }, // Exclut la réservation actuelle de la recherche
+          OR: [
+            {
+              startDate: { lte: endDateParsed },
+              endDate: { gte: startDateParsed },
+            },
+          ],
+        },
+      });
+  
+      // Si une réservation confirmée existe pour le même véhicule dans cette période, retourne une erreur
+      if (conflictingReservations.length > 0) {
+        return res.status(400).json({
+          error: 'Vehicle is already reserved during these dates.',
+        });
+      }
+  
+      // Mise à jour de la réservation si aucune réservation en conflit n'existe
       const updatedReservation = await prisma.reservation.update({
         where: { id: parseInt(id) },
         data: {
           vehicle_id,
           customer_id,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
+          startDate: startDateParsed,
+          endDate: endDateParsed,
           totalAmount,
           status,
         },
       });
-
+  
       return res.status(200).json(updatedReservation);
     } catch (error) {
       return res
         .status(500)
         .json({ error: `Failed to update reservation: ${error.message}` });
+    } finally {
+      await prisma.$disconnect();
     }
   },
-
+  
   async deleteReservation(req, res) {
     const { id } = req.params;
     try {

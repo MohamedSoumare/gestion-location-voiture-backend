@@ -1,4 +1,4 @@
-import prisma from '../config/db.js';
+import prisma from '../config/db.js'; 
 import { UserValidators } from '../validators/userValidators.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -19,7 +19,7 @@ const userController = {
 
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Création de  l'utilisateur
+      // Création de l'utilisateur
       const user = await prisma.user.create({
         data: {
           fullName,
@@ -33,7 +33,7 @@ const userController = {
       });
       return res.status(201).json(user);
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
+      console.error("Erreur lors de l'ajout de l'utilisateur:", error);
       if (error.code === 'P2002') {
         return res
           .status(400)
@@ -52,8 +52,6 @@ const userController = {
 
     const { fullName, email, phoneNumber, password, status, role } = req.body;
 
-    
-
     try {
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -66,15 +64,10 @@ const userController = {
       const updatedData = {};
 
       if (fullName) updatedData.fullName = fullName;
-      if (email) {
-        updatedData.email = email;
-      }
-      if (phoneNumber) {
-        updatedData.phoneNumber = phoneNumber;
-      }
+      if (email) updatedData.email = email;
+      if (phoneNumber) updatedData.phoneNumber = phoneNumber;
       if (password) updatedData.password = await bcrypt.hash(password, 12);
       if (role) updatedData.role = role;
-
       if (status !== undefined) updatedData.status = status;
 
       const updatedUser = await prisma.user.update({
@@ -84,7 +77,7 @@ const userController = {
 
       return res.status(200).json(updatedUser);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
+      console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
       return res.status(400).json({
         errors: [
           {
@@ -147,16 +140,14 @@ const userController = {
       }
 
       await prisma.user.delete({ where: { id: parseInt(id) } });
-      return res
-        .status(200)
-        .json({ message: 'Utilisateur supprimé avec succès.' });
+      return res.status(200).json({ message: 'Utilisateur supprimé avec succès.' });
     } catch (error) {
       console.error(error);
       return res.status(400).json({
         errors: [
           {
             message: error.message,
-            suggestion: 'Vérifiez l\'utilisateur et réessayez.',
+            suggestion: "Vérifiez l'utilisateur et réessayez.",
           },
         ],
       });
@@ -166,24 +157,18 @@ const userController = {
   login: async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ error: 'Email et mot de passe sont obligatoires.' });
+      return res.status(400).json({ error: 'Email et mot de passe sont obligatoires.' });
     }
 
     try {
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user) {
-        return res
-          .status(404)
-          .json({ error: 'Informations d’identification incorrectes.' });
+        return res.status(404).json({ error: 'Informations d’identification incorrectes.' });
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return res
-          .status(400)
-          .json({ error: 'Informations d’identification incorrectes.' });
+        return res.status(400).json({ error: 'Informations d’identification incorrectes.' });
       }
 
       const token = jwt.sign(
@@ -195,9 +180,7 @@ const userController = {
       return res.status(200).json({ token, role: user.role });
     } catch (error) {
       console.error('Erreur lors de la tentative de connexion:', error);
-      return res.status(500).json({
-        error: 'Une erreur est survenue. Veuillez réessayer plus tard.',
-      });
+      return res.status(500).json({ error: 'Une erreur est survenue. Veuillez réessayer plus tard.' });
     }
   },
 
@@ -213,9 +196,7 @@ const userController = {
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res
-          .status(400)
-          .json({ error: 'Mot de passe actuel incorrect.' });
+        return res.status(400).json({ error: 'Mot de passe actuel incorrect.' });
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 12);
@@ -224,9 +205,7 @@ const userController = {
         data: { password: hashedPassword },
       });
 
-      return res
-        .status(200)
-        .json({ message: 'Mot de passe mis à jour avec succès.' });
+      return res.status(200).json({ message: 'Mot de passe mis à jour avec succès.' });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
@@ -260,13 +239,27 @@ const userController = {
       };
 
       await transporter.sendMail(mailOptions);
-      return res
-        .status(200)
-        .json({ message: 'Lien de réinitialisation envoyé.' });
+      return res.status(200).json({ message: 'Lien de réinitialisation envoyé.' });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
     }
+  },
+
+  generateAccessToken: async (user) => {
+    return jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+  },
+
+  generateRefreshToken: async (user) => {
+    return jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
   },
 };
 

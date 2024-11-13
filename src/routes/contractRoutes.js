@@ -1,5 +1,6 @@
 import express from 'express';
-import { contractController } from '../controllers/contractControllers.js';
+import contractController from '../controllers/contractControllers.js';
+
 import {
   contractValidators,
   handleValidationErrors,
