@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './routes/userRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import vehicleRoutes from './routes/vechicleRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
@@ -27,6 +28,7 @@ app.use(cors(corsOptions));
 
 // Routes
 app.use(userRoutes);
+app.use(authRoutes);
 app.use(customerRoutes);
 app.use(vehicleRoutes);
 app.use(reservationRoutes);

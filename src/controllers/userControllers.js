@@ -1,68 +1,71 @@
-import prisma from '../config/db.js'; 
-import { UserValidators } from '../validators/userValidators.js';
+// userController.js
+import prisma from '../config/db.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 
 const userController = {
   addUser: async (req, res) => {
-    const { fullName, email, phoneNumber, password, status, role } = req.body;
-    const user_id = req.user?.id;
+    const { fullName, email, phoneNumber, password, role, status } = req.body;
+    const validRoles = ['ADMIN', 'EMPLOYE'];
 
     try {
-      await UserValidators.checkUniqueEmail(email);
-      await UserValidators.checkUniquePhoneNumber(phoneNumber);
-
-      if (!password) {
-        return res.status(400).json({ error: 'Le mot de passe est requis' });
+    // Vérification du rôle
+      if (role && !validRoles.includes(role)) {
+        return res.status(400).json({ message: 'Rôle invalide.' });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 12);
+      // Vérification de l'unicité de l'email
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email déjà utilisé.' });
+      }
+
+      // Hashage du mot de passe avec un facteur de coût de 10
+      const hashedPassword = await bcrypt.hash(password, 10);
 
       // Création de l'utilisateur
-      const user = await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
           fullName,
           email,
           phoneNumber,
           password: hashedPassword,
-          status: status,
-          role: role || 'employe',
-          user_id,
+          status,
+          role: role || 'EMPLOYE',
         },
       });
-      return res.status(201).json(user);
+
+      // Réponse avec les informations utilisateur (sans le mot de passe)
+      return res.status(201).json({
+        message: 'Utilisateur créé avec succès',
+        user: {
+          id: newUser.id,
+          fullName: newUser.fullName,
+          email: newUser.email,
+          role: newUser.role,
+          status: newUser.status,
+        },
+      });
     } catch (error) {
-      console.error("Erreur lors de l'ajout de l'utilisateur:", error);
+      console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
       if (error.code === 'P2002') {
-        return res
-          .status(400)
-          .json({ error: 'Email ou numéro de téléphone déjà utilisé.' });
+        return res.status(400).json({ message: 'Email ou numéro de téléphone déjà utilisé.' });
       }
       return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
+
   updateUser: async (req, res) => {
-    const userId = parseInt(req.params.id, 10);
-
-    if (isNaN(userId)) {
-      return res.status(400).json({ error: 'ID invalide.' });
-    }
-
+    const userId = Number(req.params.id);
     const { fullName, email, phoneNumber, password, status, role } = req.body;
 
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
+      const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
 
       const updatedData = {};
-
       if (fullName) updatedData.fullName = fullName;
       if (email) updatedData.email = email;
       if (phoneNumber) updatedData.phoneNumber = phoneNumber;
@@ -77,15 +80,8 @@ const userController = {
 
       return res.status(200).json(updatedUser);
     } catch (error) {
-      console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
-      return res.status(400).json({
-        errors: [
-          {
-            message: error.message,
-            suggestion: 'Veuillez réessayer plus tard.',
-          },
-        ],
-      });
+      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
@@ -95,46 +91,28 @@ const userController = {
       return res.status(200).json(users);
     } catch (error) {
       console.error(error);
-      return res.status(400).json({
-        errors: [
-          {
-            message: error.message,
-            suggestion: 'Veuillez réessayer plus tard.',
-          },
-        ],
-      });
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
   getUserById: async (req, res) => {
     const { id } = req.params;
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: parseInt(id) },
-      });
+      const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
       return res.status(200).json(user);
     } catch (error) {
       console.error(error);
-      return res.status(400).json({
-        errors: [
-          {
-            message: error.message,
-            suggestion: 'Veuillez réessayer plus tard.',
-          },
-        ],
-      });
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
   deleteUser: async (req, res) => {
     const { id } = req.params;
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: parseInt(id) },
-      });
+      const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
@@ -143,46 +121,54 @@ const userController = {
       return res.status(200).json({ message: 'Utilisateur supprimé avec succès.' });
     } catch (error) {
       console.error(error);
-      return res.status(400).json({
-        errors: [
-          {
-            message: error.message,
-            suggestion: "Vérifiez l'utilisateur et réessayez.",
-          },
-        ],
-      });
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
-  login: async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email et mot de passe sont obligatoires.' });
-    }
-
+  getProfile: async (req, res) => {
+    const userId = req.user.user_id;
     try {
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
-        return res.status(404).json({ error: 'Informations d’identification incorrectes.' });
+        return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
-
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: 'Informations d’identification incorrectes.' });
-      }
-
-      const token = jwt.sign(
-        { user_id: user.id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-      );
-
-      return res.status(200).json({ token, role: user.role });
+      return res.status(200).json({ user });
     } catch (error) {
-      console.error('Erreur lors de la tentative de connexion:', error);
-      return res.status(500).json({ error: 'Une erreur est survenue. Veuillez réessayer plus tard.' });
+      console.error('Erreur lors de la récupération du profil:', error);
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
+
+  updateProfile: async (req, res) => {
+    const userId = req.user.user_id;
+    const { fullName, email, phoneNumber, password, status, role } = req.body;
+
+  
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) {
+        return res.status(404).json({ error: 'Utilisateur non trouvé.' });
+      }
+  
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          fullName: fullName || user.fullName,
+          email: email || user.email,
+          phoneNumber: phoneNumber || user.phoneNumber,
+          // password: password || user.password,
+          status: status || user.status,
+          role: role || user.role,
+        },
+      });
+  
+      return res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du profil :', error);
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
+    }
+  },
+  
 
   updatePassword: async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -207,59 +193,9 @@ const userController = {
 
       return res.status(200).json({ message: 'Mot de passe mis à jour avec succès.' });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: error.message });
+      console.error('Erreur lors de la mise à jour du mot de passe:', error);
+      return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
-  },
-
-  resetPassword: async (req, res) => {
-    const { email } = req.body;
-    try {
-      const user = await prisma.user.findUnique({ where: { email } });
-      if (!user) {
-        return res.status(404).json({ error: 'Utilisateur non trouvé.' });
-      }
-
-      const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-        expiresIn: '30m',
-      });
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Réinitialisation de votre mot de passe',
-        text: `Cliquez sur le lien pour réinitialiser votre mot de passe : ${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`,
-      };
-
-      await transporter.sendMail(mailOptions);
-      return res.status(200).json({ message: 'Lien de réinitialisation envoyé.' });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: error.message });
-    }
-  },
-
-  generateAccessToken: async (user) => {
-    return jwt.sign(
-      { userId: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-  },
-
-  generateRefreshToken: async (user) => {
-    return jwt.sign(
-      { userId: user.id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
   },
 };
 

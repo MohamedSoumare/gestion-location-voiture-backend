@@ -1,44 +1,50 @@
 import express from 'express';
 import customerController from '../controllers/customerControllers.js';
 import {
-  validateCustomerData,
-  handleValidationErrors,
+  createValidators,
+  updateValidators,
+  deleteValidators,
 } from '../validators/customerValidators.js';
-// import authenticateToken, {
-//   authorizeRole,
-// } from '../middlewares/authMiddleware.js';
+import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// POST route to add a customer
 router.post(
   '/customers/add',
-  handleValidationErrors,
+  authenticateToken,
+  authorizeRole(['ADMIN', 'EMPLOYE']),
+  createValidators,
   customerController.addCustomer
 );
 
-// PUT route to update a customer
 router.put(
   '/customers/update/:id',
-  validateCustomerData,
-  handleValidationErrors,
+  authenticateToken,
+  authorizeRole(['ADMIN', 'EMPLOYE']),
+  updateValidators,
   customerController.updateCustomer
 );
 
-// GET route to get a customer by ID
 router.get(
   '/customers/:id',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'EMPLOYE']),
   customerController.getCustomerById
 );
 
-// DELETE route to delete a customer by ID
 router.delete(
-  '/customers/delete/:id',customerController.deleteCustomer
+  '/customers/delete/:id',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  deleteValidators,
+  customerController.deleteCustomer
 );
 
-// GET route to get all customers
 router.get(
-  '/customers',customerController.getAllCustomers
+  '/customers',
+  authenticateToken,
+  authorizeRole(['ADMIN', 'EMPLOYE']),
+  customerController.getAllCustomers
 );
 
 export default router;

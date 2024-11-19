@@ -1,23 +1,22 @@
-  // This is your Prisma schema file
+// prisma/schema.prisma
 
-  generator client {
-    provider = "prisma-client-js"
-  }
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-
 model User {
   id            Int           @id @default(autoincrement())
   fullName      String        @db.VarChar(100)
   email         String        @unique @db.VarChar(100)
-  phoneNumber   String        @unique @db.VarChar(20)  
+  phoneNumber   String        @unique @db.VarChar(20)
   password      String        @db.VarChar(255)
   status        Boolean
-  role          String       @default("employe") @db.VarChar(50)
+  role          String        @default("employe") @db.VarChar(50)
   customers     Customer[]    @relation("UserCustomers")
   vehicles      Vehicle[]     @relation("UserVehicles")
   reservations  Reservation[] @relation("UserReservations")
@@ -29,10 +28,10 @@ model Customer {
   id              Int           @id @default(autoincrement())
   fullName        String        @db.VarChar(60)
   address         String?
-  nni             String           @unique @db.VarChar(25)
+  nni             String        @unique @db.VarChar(25)
   birthDate       DateTime
   drivingLicense  String        @unique @db.VarChar(50)
-  phoneNumber     String        @unique @db.VarChar(20) 
+  phoneNumber     String        @unique @db.VarChar(20)
   reservations    Reservation[]
   user            User?         @relation("UserCustomers", fields: [user_id], references: [id])
   user_id         Int?
@@ -58,7 +57,7 @@ model Vehicle {
   contracts         Contract[]    @relation("VehicleContracts")
   user              User?         @relation("UserVehicles", fields: [user_id], references: [id])
   user_id           Int?
-  @@map("vehicules")
+  @@map("vehicles")
 }
 
 model Reservation {
@@ -76,18 +75,36 @@ model Reservation {
   @@map("reservations")
 }
 
-  model Contract {
-    id              Int           @id @default(autoincrement())
-    contractNumber  String        @unique @db.VarChar(50)
-    startDate       DateTime
-    returnDate      DateTime?
-    totalAmount     Decimal        @db.Decimal(10, 2)
-    status          String         @db.VarChar(50)
-    vehicle         Vehicle        @relation("VehicleContracts", fields: [vehicle_id], references: [id])
-    vehicle_id      Int
-    customer        Customer       @relation("CustomerContracts", fields: [customer_id], references: [id])
-    customer_id     Int
-    user            User?          @relation("UserContracts", fields: [user_id], references: [id])
-    user_id         Int?
-    @@map("contracts")
-  }
+model Contract {
+  id              Int           @id @default(autoincrement())
+  contractNumber  String        @unique @db.VarChar(50)
+  startDate       DateTime
+  returnDate      DateTime?
+  totalAmount     Decimal       @db.Decimal(10, 2)
+  status          String        @db.VarChar(50)
+  vehicle         Vehicle       @relation("VehicleContracts", fields: [vehicle_id], references: [id])
+  vehicle_id      Int
+  customer        Customer      @relation("CustomerContracts", fields: [customer_id], references: [id])
+  customer_id     Int
+  user            User?         @relation("UserContracts", fields: [user_id], references: [id])
+  user_id         Int?
+  @@map("contracts")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYE
+}
+
+enum ReservationStatus {
+  EN_ATTENTE
+  CONFIRMER
+  ANNULER
+  MAINTENANCE
+}
+
+enum ContractStatus {
+  VALIDER
+  EN_ATTENTE
+  ANNULER
+}
