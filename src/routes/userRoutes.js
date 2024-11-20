@@ -58,7 +58,7 @@ router.get(
 );
 
 // Route to get all users
-router.get('/users', authenticateToken, userController.getAllUsers);
+router.get('/users', authenticateToken, authorizeRole(['ADMIN']), handleValidationErrors, userController.getAllUsers);
 
 // Route to update password
 router.put(

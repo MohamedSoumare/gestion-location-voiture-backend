@@ -1,6 +1,6 @@
 import express from 'express';
 import { reservationController } from '../controllers/reservationControllers.js';
-import { reservationValidators } from '../validators/reservationValidators.js';
+import { createReservationValidators,updateReservationValidators,handleValidationErrors,deleteReservationValidators } from '../validators/reservationValidators.js';
 import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
 
 
@@ -10,23 +10,21 @@ router.post(
   '/reservations/add',
   authenticateToken,
   authorizeRole(['ADMIN','EMPLOYE']),
-  reservationValidators,
+  createReservationValidators,handleValidationErrors,
   reservationController.createReservation
 );
-router.get('/reservations',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']), reservationController.getAllReservations);
+router.get('/reservations',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors, reservationController.getAllReservations);
 
-router.get('/reservations/:id',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),reservationController.getReservationById);
+router.get('/reservations/:id',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors, reservationController.getReservationById);
 router.get('/reservations/status/:id',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),reservationController.updateReservationStatus);
 
 router.put(
-  '/reservations/edit/:id', authenticateToken,
-  authorizeRole(['ADMIN','EMPLOYE']),
-  reservationValidators,
+  '/reservations/edit/:id', authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors,updateReservationValidators,
   reservationController.updateReservation
 );
 router.delete(
   '/reservations/delete/:id', authenticateToken,
-  authorizeRole(['ADMIN']),
+  authorizeRole(['ADMIN']),deleteReservationValidators,
   reservationController.deleteReservation
 );
 

@@ -123,8 +123,10 @@ const contractController = {
   updateContract: async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Erreurs de validation :', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
+    
 
     const { id } = req.params;
     const {

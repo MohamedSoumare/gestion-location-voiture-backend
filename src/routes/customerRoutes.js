@@ -1,6 +1,7 @@
 import express from 'express';
 import customerController from '../controllers/customerControllers.js';
 import {
+  handleValidationErrors,
   createValidators,
   updateValidators,
   deleteValidators,
@@ -13,7 +14,7 @@ router.post(
   '/customers/add',
   authenticateToken,
   authorizeRole(['ADMIN', 'EMPLOYE']),
-  createValidators,
+  createValidators,handleValidationErrors,
   customerController.addCustomer
 );
 
@@ -21,7 +22,7 @@ router.put(
   '/customers/update/:id',
   authenticateToken,
   authorizeRole(['ADMIN', 'EMPLOYE']),
-  updateValidators,
+  updateValidators,handleValidationErrors,
   customerController.updateCustomer
 );
 
@@ -37,13 +38,14 @@ router.delete(
   authenticateToken,
   authorizeRole(['ADMIN']),
   deleteValidators,
+  handleValidationErrors,
   customerController.deleteCustomer
 );
 
 router.get(
   '/customers',
   authenticateToken,
-  authorizeRole(['ADMIN', 'EMPLOYE']),
+  authorizeRole(['ADMIN', 'EMPLOYE']),handleValidationErrors,
   customerController.getAllCustomers
 );
 

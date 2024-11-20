@@ -45,9 +45,12 @@ export const createUserValidator = [
     .withMessage('Le numéro de téléphone doit être numérique.')
     .isLength({ min: 8, max: 8 })
     .withMessage('Le numéro de téléphone doit contenir exactement 8 chiffres.')
+    .matches(/^[234]\d{7}$/)
+    .withMessage('Le numéro de téléphone doit commencer par 2, 3 ou 4.')
     .custom(async (phoneNumber) => {
       await UserValidators.checkUniquePhoneNumber(phoneNumber);
     }),
+  
   check('password')
     .notEmpty()
     .withMessage('Le mot de passe est requis.')
@@ -85,12 +88,15 @@ export const updateUserValidator = [
     .custom(async (email, { req }) => {
       if (email) await UserValidators.checkUniqueEmail(email, req.params.id);
     }),
+
   check('phoneNumber')
     .optional()
     .isNumeric()
     .withMessage('Le numéro de téléphone doit être numérique.')
     .isLength({ min: 8, max: 8 })
     .withMessage('Le numéro de téléphone doit contenir exactement 8 chiffres.')
+    .matches(/^[234]\d{7}$/)
+    .withMessage('Le numéro de téléphone doit commencer par 2, 3 ou 4.')
     .custom(async (phoneNumber, { req }) => {
       if (phoneNumber) await UserValidators.checkUniquePhoneNumber(phoneNumber, req.params.id);
     }),
@@ -106,8 +112,7 @@ export const updateUserValidator = [
     .optional()
     .isString()
     .withMessage('Le rôle doit être une chaîne de caractères.')
-    // .isIn(['admin', 'employe'])
-    // .withMessage('Le rôle doit être soit "admin" soit "user".'),
+   
   
 ];
 
@@ -127,21 +132,6 @@ export const deleteUserValidator = [
   
 ];
 
-
-// Middleware to handle validation errors
-// export const handleValidationErrors = (req, res, next) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     return res.status(400).json({
-//       errors: errors.array().map((err) => ({
-//         field: err.param,
-//         message: err.msg,
-//         suggestion: 'Veuillez fournir une entrée valide.',
-//       })),
-//     });
-//   }
-//   next();
-// };
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
