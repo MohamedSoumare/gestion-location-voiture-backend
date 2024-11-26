@@ -65,8 +65,7 @@ export const createReservationValidators = [
   check('totalAmount')
     .notEmpty()
     .withMessage('Le montant total est requis.')
-    .isFloat({ min: 0 })
-    .withMessage('Le montant total doit être un nombre positif.'),
+    .isFloat({ min: 0.01 }).withMessage('Le montant total doit être supérieur à zéro.'),
   handleValidationErrors,
 ];
 
@@ -98,7 +97,7 @@ export const updateReservationValidators = [
     }),
   check('startDate')
     .optional()
-    .isISO8601()
+    .isISO8601()  
     .toDate()
     .withMessage('La date de début doit être au format YYYY-MM-DD.'),
   check('endDate')
@@ -114,8 +113,8 @@ export const updateReservationValidators = [
     }),
   check('totalAmount')
     .optional()
-    .isFloat({ min: 0 })
-    .withMessage('Le montant total doit être un nombre positif.'),
+    .isFloat({ min: 0.01 }).withMessage('Le montant total doit être supérieur à zéro.'),
+  
   handleValidationErrors,
 ];
 

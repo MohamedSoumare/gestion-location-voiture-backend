@@ -183,69 +183,118 @@ export const vehicleController = {
     }
   },
 
+  // deleteVehicle: async (req, res) => {
+  //   const { id } = req.params;
+  //   const user_id = req.user?.user_id;
+  
+  //   if (!user_id) {
+  //     return res.status(401).json({ error: 'Utilisateur non authentifié.' });
+  //   }
+  
+  //   try {
+  //     const vehicle = await prisma.vehicle.findUnique({
+  //       where: { id: parseInt(id, 10) },
+  //     });
+  
+  //     if (!vehicle) {
+  //       return res.status(404).json({ error: 'Véhicule non trouvé.' });
+  //     }
+  
+  //     if (vehicle.user_id !== user_id) {
+  //       return res.status(403).json({
+  //         error: 'Vous n\'êtes pas autorisé à supprimer ce véhicule.',
+  //       });
+  //     }
+  
+  //     // Vérifier si le véhicule est lié à un contrat ou une réservation
+  //     const existingContracts = await prisma.contract.findMany({
+  //       where: { vehicle_id: parseInt(id, 10) },
+  //     });
+  
+  //     const existingReservations = await prisma.reservation.findMany({
+  //       where: {
+  //         vehicle_id: parseInt(id, 10),
+  //         status: 'CONFIRMER',
+  //       },
+  //     });
+  
+  //     if (existingContracts.length > 0) {
+  //       return res.status(400).json({
+  //         error:
+  //           'Impossible de supprimer le véhicule car il est lié à un contrat de location.',
+  //       });
+  //     }
+  
+  //     if (existingReservations.length > 0) {
+  //       return res.status(400).json({
+  //         error:
+  //           'Impossible de supprimer le véhicule car il a des réservations confirmées.',
+  //       });
+  //     }
+  
+  //     // Supprimer le véhicule
+  //     await prisma.vehicle.delete({
+  //       where: { id: parseInt(id, 10) },
+  //     });
+  
+  //     return res.status(200).json({ message: 'Véhicule supprimé avec succès.' });
+  //   } catch (error) {
+  //     console.error('Delete Vehicle Error:', error.message);
+  //     return res.status(500).json({
+  //       error: `Erreur lors de la suppression du véhicule: ${error.message}`,
+  //     });
+  //   }
+  // },
+
   deleteVehicle: async (req, res) => {
     const { id } = req.params;
-    const user_id = req.user?.user_id;
-
-    if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
-    }
+  
     try {
+      const vehicleId = parseInt(id, 10);
+  
+      // Vérifier si le véhicule existe
       const vehicle = await prisma.vehicle.findUnique({
-        where: { id: parseInt(id, 10) },
+        where: { id: vehicleId },
       });
-
+  
       if (!vehicle) {
         return res.status(404).json({ error: 'Véhicule non trouvé.' });
       }
-
-      if (vehicle.user_id !== user_id) {
-        return res.status(403).json({
-          error: 'Vous n\'êtes pas autorisé à supprimer ce véhicule.',
-        });
-      }
-      // Vérifier s'il existe des contrats pour ce véhicule
-      const existingContracts = await prisma.contract.findMany({
-        where: {
-          vehicle_id: parseInt(id, 10),
-        },
-      });
-
-      if (existingContracts.length > 0) {
+  
+      // Vérifier s'il est lié à des contrats ou des réservations
+      const [linkedContracts, linkedReservations] = await Promise.all([
+        prisma.contract.findMany({ where: { vehicle_id: vehicleId } }),
+        prisma.reservation.findMany({
+          where: { vehicle_id: vehicleId},
+        }),
+      ]);
+  
+      if (linkedContracts.length > 0) {
         return res.status(400).json({
-          error:
-            'Impossible de supprimer le véhicule car il est lié à un contrat de location existant.',
+          error: 'Impossible de supprimer : véhicule lié à un contrat.',
         });
       }
-
-      // Vérifier s'il existe des réservations confirmées pour ce véhicule
-      const existingReservations = await prisma.reservation.findMany({
-        where: {
-          vehicle_id: parseInt(id, 10),
-          status: 'CONFIRMER',
-        },
-      });
-
-      if (existingReservations.length > 0) {
+  
+      if (linkedReservations.length > 0) {
         return res.status(400).json({
-          error:
-            'Impossible de supprimer le véhicule car il a des réservations confirmées.',
+          error: 'Impossible de supprimer : véhicule lié à une réservation.',
         });
       }
-
-      // Supprimer le véhicule
+  
+      // Suppression
       await prisma.vehicle.delete({
-        where: { id: parseInt(id, 10) },
+        where: { id: vehicleId },
       });
+  
       return res.status(200).json({ message: 'Véhicule supprimé avec succès.' });
-
     } catch (error) {
-      console.error('Delete Vehicle Error:', error.message);
+      console.error('Erreur suppression véhicule:', error.message);
       return res.status(500).json({
-        error: `Erreur lors de la suppression du véhicule: ${error.message}`,
+        error: 'Erreur interne lors de la suppression du véhicule.',
       });
-    } 
+    }
   },
+  
 };
 
 export default vehicleController;

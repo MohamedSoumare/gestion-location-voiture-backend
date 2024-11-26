@@ -9,7 +9,7 @@ export const handleValidationErrors = (req, res, next) => {
       errors: errors.array().map((err) => ({
         field: err.param,
         message: err.msg,
-        suggestion: 'Veuillez corriger ce champ.',
+        suggestion: 'Veuillez vérifier et corriger ce champ.',
       })),
     });
   }
@@ -20,21 +20,25 @@ export const handleValidationErrors = (req, res, next) => {
 export const createValidators = [
   check('fullName')
     .notEmpty()
-    .withMessage('Le nom complet est requis.')
-    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le nom complet ne doit contenir que des lettres et des espaces.')
-    .isLength({min: 3, max: 60 })
-    .withMessage('Le nom complet ne peut pas dépasser 60 caractères.'),
-  
+    .withMessage('Veuillez entrer un nom complet.')
+    .matches(/^[A-Za-z]+( [A-Za-z]+)*$/)
+    .withMessage(
+      'Le nom complet doit contenir uniquement des lettres, des espaces (exemple : Jean Dupont).'
+    )
+    .isLength({ min: 3, max: 60 })
+    .withMessage(
+      'Le nom complet doit avoir entre 3 et 60 caractères (exemple : Marie-Anne Dupuis).'
+    ),
+
   check('phoneNumber')
     .isNumeric()
-    .withMessage('Le numéro de téléphone doit être numérique.')
+    .withMessage('Le numéro de téléphone doit contenir uniquement des chiffres.')
     .isLength({ min: 8, max: 8 })
     .withMessage('Le numéro de téléphone doit comporter exactement 8 chiffres.'),
-  
+
   check('nni')
     .isNumeric()
-    .withMessage('Le NNI doit être numérique.')
+    .withMessage('Le NNI doit être un nombre.')
     .isLength({ min: 10, max: 10 })
     .withMessage('Le NNI doit comporter exactement 10 chiffres.')
     .custom(async (nni, { req }) => {
@@ -42,27 +46,42 @@ export const createValidators = [
         where: { nni: String(nni), user_id: req.user?.user_id },
       });
       if (existingCustomer) {
-        throw new Error('Le NNI est déjà enregistré.');
+        throw new Error('Ce NNI est déjà utilisé. Veuillez vérifier vos informations.');
       }
       return true;
     }),
-  
+
   check('birthDate')
     .notEmpty()
-    .withMessage('La date de naissance est requise.')
+    .withMessage('Veuillez entrer une date de naissance.')
     .isISO8601()
-    .withMessage('La date de naissance doit être au format YYYY-MM-DD.'),
-  
+    .withMessage(
+      'La date de naissance doit être au format ISO : YYYY-MM-DD (exemple : 1990-05-20).'
+    )
+    .custom((birthDate) => {
+      const birthYear = new Date(birthDate).getFullYear();
+      const currentYear = new Date().getFullYear();
+      if (birthYear >= 2005 && birthYear <= currentYear) {
+        throw new Error(
+          'Vous devez être né avant 2005. Vérifiez la date saisie.'
+        );
+      }
+      return true;
+    }),
+
   check('drivingLicense')
     .optional()
     .matches(/^(MR-\d{7}|\d{8,10})$/)
-    .withMessage('Le permis de conduire doit commencer par "MR-" suivi de 7 chiffres ou contenir entre 8 et 10 chiffres.')
+    .withMessage(
+      'Le permis doit commencer par "MR-" suivi de 7 chiffres, ou être un numéro entre 8 et 10 chiffres.')
     .custom(async (drivingLicense, { req }) => {
       const existingLicense = await prisma.customer.findFirst({
         where: { drivingLicense: String(drivingLicense), user_id: req.user?.user_id },
       });
       if (existingLicense) {
-        throw new Error('Ce permis de conduire est déjà utilisé.');
+        throw new Error(
+          'Ce numéro de permis est déjà utilisé. Veuillez vérifier vos informations.'
+        );
       }
       return true;
     }),
@@ -70,24 +89,39 @@ export const createValidators = [
 
 // Validateurs pour la mise à jour
 export const updateValidators = [
+  check('id')
+    .notEmpty()
+    .withMessage('L\'ID du client est requis.')
+    .isNumeric()
+    .withMessage('L\'ID doit être un nombre.')
+    .custom(async (id) => {
+      const customer = await prisma.customer.findUnique({ where: { id: parseInt(id, 10) } });
+      if (!customer) {
+        throw new Error('Aucun client trouvé avec cet ID. Vérifiez l\'ID saisi.');
+      }
+      return true;
+    }),
+
   check('fullName')
     .optional()
-    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le nom complet ne doit contenir que des lettres et des espaces.')
-    .isLength({ min:3, max: 60 })
-    .withMessage('Le nom complet ne peut pas dépasser 60 caractères.'),
-  
+    .matches(/^[A-Za-z]+( [A-Za-z]+)*$/)
+    .withMessage(
+      'Le nom complet doit contenir uniquement des lettres, des espaces (exemple : Jean Dupont).'
+    )
+    .isLength({ min: 3, max: 60 })
+    .withMessage('Le nom complet doit avoir entre 3 et 60 caractères.'),
+
   check('phoneNumber')
     .optional()
     .isNumeric()
-    .withMessage('Le numéro de téléphone doit être numérique.')
+    .withMessage('Le numéro de téléphone doit être un nombre.')
     .isLength({ min: 8, max: 8 })
     .withMessage('Le numéro de téléphone doit comporter exactement 8 chiffres.'),
-  
+
   check('nni')
     .optional()
     .isNumeric()
-    .withMessage('Le NNI doit être numérique.')
+    .withMessage('Le NNI doit être un nombre.')
     .isLength({ min: 10, max: 10 })
     .withMessage('Le NNI doit comporter exactement 10 chiffres.')
     .custom(async (nni, { req }) => {
@@ -100,20 +134,26 @@ export const updateValidators = [
         },
       });
       if (existingCustomer) {
-        throw new Error('Le NNI est déjà enregistré.');
+        throw new Error(
+          'Ce NNI est déjà utilisé par un autre client. Veuillez vérifier vos informations.'
+        );
       }
       return true;
     }),
-  
+
   check('birthDate')
     .optional()
     .isISO8601()
-    .withMessage('La date de naissance doit être au format YYYY-MM-DD.'),
-  
+    .withMessage(
+      'La date de naissance doit être au format ISO : YYYY-MM-DD.'
+    ),
+
   check('drivingLicense')
     .optional()
     .matches(/^(MR-\d{7}|\d{8,10})$/)
-    .withMessage('Le permis de conduire doit commencer par "MR-" suivi de 7 chiffres ou contenir entre 8 et 10 chiffres.')
+    .withMessage(
+      'Le permis doit commencer par "MR-" suivi de 7 chiffres, ou être un numéro entre 8 et 10 chiffres.'
+    )
     .custom(async (drivingLicense, { req }) => {
       const customerId = parseInt(req.params.id, 10);
       const existingLicense = await prisma.customer.findFirst({
@@ -124,7 +164,9 @@ export const updateValidators = [
         },
       });
       if (existingLicense) {
-        throw new Error('Ce permis de conduire est déjà utilisé.');
+        throw new Error(
+          'Ce permis est déjà utilisé par un autre client. Veuillez vérifier vos informations.'
+        );
       }
       return true;
     }),
@@ -134,14 +176,16 @@ export const updateValidators = [
 export const deleteValidators = [
   check('id')
     .notEmpty()
-    .withMessage('L\'ID est requis.')
+    .withMessage('L\'ID du client est requis pour la suppression.')
     .isNumeric()
-    .withMessage('L\'ID doit être numérique.')
+    .withMessage('L\'ID doit être un nombre.')
     .custom(async (id) => {
       const customer = await prisma.customer.findUnique({ where: { id: parseInt(id, 10) } });
       if (!customer) {
-        throw new Error('Aucun client trouvé avec cet ID.');
+        throw new Error(
+          'Aucun client trouvé avec cet ID. Impossible de procéder à la suppression.'
+        );
       }
       return true;
-    })
+    }),
 ];

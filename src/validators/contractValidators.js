@@ -28,6 +28,10 @@ const validateDatesNotEqual = (startDate, returnDate) => {
 export const contractValidators = [
   check('contractNumber')
     .notEmpty().withMessage('Le numéro de contrat ne peut pas être vide.')
+    .matches(/^MRN-CTR-\d{5}$/)
+    .withMessage(
+      'Le numéro de contrat doit commencer par "MRN-CTR-" suivi de 5 chiffres.'
+    )
     .custom(async (contractNumber, { req }) => {
       const existingContract = await prisma.contract.findUnique({
         where: { contractNumber },
@@ -83,9 +87,18 @@ export const contractValidators = [
       }
     }),
   check('totalAmount')
+    .notEmpty()
+    .withMessage('Le montant est obligatoire.')
+    .custom((value) => {
+      // Convertir la valeur en nombre
+      const num = parseFloat(value);
+      // Vérifier si c'est un nombre, s'il est supérieur à zéro et s'il n'est pas NaN
+      if (isNaN(num) || num <= 0) {
+        throw new Error('Le montant total doit être un nombre positif supérieur à zéro.');
+      }
+      return true; // La validation réussit
+    }),
 
-    .isDecimal().withMessage('Le montant doit être un nombre décimal positif.')
-    .custom(value => Number(value) > 0 || 'Le montant doit être supérieur à 0.'),
   
   handleValidationErrors,
 ];
@@ -94,7 +107,10 @@ export const contractValidators = [
 export const updateValidatorsContract = [
   check('contractNumber')
     .optional()
-    .notEmpty().withMessage('Le numéro de contrat ne peut pas être vide.')
+    .matches(/^MRN-CTR-\d{5}$/)
+    .withMessage(
+      'Le numéro de contrat doit commencer par "MRN-CTR-" suivi de 5 chiffres.'
+    )
     .custom(async (contractNumber, { req }) => {
       const existingContract = await prisma.contract.findUnique({
         where: { contractNumber },
@@ -153,9 +169,16 @@ export const updateValidatorsContract = [
     }),
 
   check('totalAmount')
-    .optional()
-    .isDecimal().withMessage('Le montant doit être un nombre décimal positif.')
-    .custom(value => Number(value) > 0 || 'Le montant doit être supérieur à 0.'),
+    .optional() // Rend la validation facultative si le champ est vide
+    .custom((value) => {
+      // Convertir la valeur en nombre
+      const num = parseFloat(value);
+      // Vérifier si c'est un nombre, s'il est supérieur à zéro et s'il n'est pas NaN
+      if (isNaN(num) || num <= 0) {
+        throw new Error('Le montant total doit être un nombre positif supérieur à zéro.');
+      }
+      return true; // La validation réussit
+    }),
 
   handleValidationErrors,
 ];

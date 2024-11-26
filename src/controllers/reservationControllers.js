@@ -155,9 +155,9 @@ export const reservationController = {
         return res.status(403).json({ error: 'Accès non autorisé.' });
       }
 
-      if (reservation.status === 'CONFIRMER') {
-        return res.status(400).json({ error: 'Réservation confirmée, modification impossible.' });
-      }
+      // if (reservation.status === 'CONFIRMER') {
+      //   return res.status(400).json({ error: 'Réservation confirmée, modification impossible.' });
+      // }
 
       const updatedReservation = await prisma.reservation.update({
         where: { id: Number(id) },
@@ -187,7 +187,10 @@ export const reservationController = {
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
-
+    if (!['CONFIRMER', 'EN_ATTENTE', 'ANNULLER'].includes(status)) {
+      return res.status(400).json({ error: 'Statut invalide.' });
+    }
+  
     try {
       const reservation = await prisma.reservation.findUnique({
         where: { id: Number(id) },
@@ -197,11 +200,6 @@ export const reservationController = {
         return res.status(403).json({ error: 'Accès non autorisé.' });
       }
 
-      if (reservation.status === 'CONFIRMER' && status !== 'ANNULLER') {
-        return res.status(400).json({
-          error: 'Impossible de modifier une réservation confirmée, sauf pour annuler.',
-        });
-      }
 
       const updatedStatus = await prisma.reservation.update({
         where: { id: Number(id) },

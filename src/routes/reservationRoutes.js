@@ -16,15 +16,19 @@ router.post(
 router.get('/reservations',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors, reservationController.getAllReservations);
 
 router.get('/reservations/:id',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors, reservationController.getReservationById);
-router.get('/reservations/status/:id',authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),reservationController.updateReservationStatus);
 
 router.put(
   '/reservations/edit/:id', authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors,updateReservationValidators,
   reservationController.updateReservation
 );
+router.put(
+  '/reservations/status/:id',
+  authenticateToken,authorizeRole(['ADMIN','EMPLOYE']),handleValidationErrors,reservationController.updateReservationStatus
+);
+
 router.delete(
   '/reservations/delete/:id', authenticateToken,
-  authorizeRole(['ADMIN']),deleteReservationValidators,
+  authorizeRole(['ADMIN']),deleteReservationValidators,handleValidationErrors,
   reservationController.deleteReservation
 );
 
