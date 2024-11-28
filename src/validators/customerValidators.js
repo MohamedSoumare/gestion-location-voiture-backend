@@ -1,21 +1,30 @@
 import { check, validationResult } from 'express-validator';
 import prisma from '../config/db.js';
 
-// Middleware pour gérer les erreurs de validation
+// export const handleValidationErrors = (req, res, next) => {
+//   const errors = validationResult(req);
+//   if (!errors.isEmpty()) {
+//     return res.status(400).json({
+//       errors: errors.array().map(err => {
+//         // Construire le message sans inclure "Champ : undefined"
+//         return err.param
+//           ? `${err.msg} (Champ : ${err.param})`
+//           : `${err.msg}`;
+//       }),
+//     });
+//   }
+//   next();
+// };
+
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
-      errors: errors.array().map((err) => ({
-        field: err.param,
-        message: err.msg,
-        suggestion: 'Veuillez vérifier et corriger ce champ.',
-      })),
+      errors: errors.array().map(err => err.msg),
     });
   }
   next();
 };
-
 // Validateurs pour la création
 export const createValidators = [
   check('fullName')

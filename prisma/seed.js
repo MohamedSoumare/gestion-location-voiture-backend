@@ -47,10 +47,10 @@ async function main() {
     data: {
       fullName: 'John Doe',
       address: '123 Main St',
-      nni: 'NNI123456',
+      nni: '0304121300',
       birthDate: new Date('1990-01-01'),
-      drivingLicense: 'DL123456',
-      phoneNumber: '1234567891',
+      drivingLicense: 'MR-1234567',
+      phoneNumber: '34331412',
       user_id: adminUser.id,
     },
   });
@@ -59,10 +59,10 @@ async function main() {
     data: {
       fullName: 'Jane Smith',
       address: '456 Oak Ave',
-      nni: 'NNI654321',
+      nni: '8390654020',
       birthDate: new Date('1985-05-15'),
-      drivingLicense: 'DL654321',
-      phoneNumber: '1234567892',
+      drivingLicense: 'MR-6543210',
+      phoneNumber: '42112727',
       user_id: employeUser.id,
     },
   });

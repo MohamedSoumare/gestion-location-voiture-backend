@@ -46,9 +46,10 @@ const userController = {
         },
       });
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
+      console.error('Erreur lors de la création de l\'utilisateur :', error);
       if (error.code === 'P2002') {
-        return res.status(400).json({ message: 'Email ou numéro de téléphone déjà utilisé.' });
+        const field = error.meta.target.includes('email') ? 'Email' : 'Numéro de téléphone';
+        return res.status(400).json({ message: `${field} déjà utilisé.` });
       }
       return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
@@ -58,33 +59,73 @@ const userController = {
   updateUser: async (req, res) => {
     const userId = Number(req.params.id);
     const { fullName, email, phoneNumber, password, status, role } = req.body;
-
+  
     try {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (!user) {
+      // Vérification si l'utilisateur existe
+      const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+      if (!existingUser) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
-
-      const updatedData = {};
-      if (fullName) updatedData.fullName = fullName;
-      if (email) updatedData.email = email;
-      if (phoneNumber) updatedData.phoneNumber = phoneNumber;
-      if (password) updatedData.password = await bcrypt.hash(password, 12);
-      if (role) updatedData.role = role;
-      if (status !== undefined) updatedData.status = status;
-
+  
+      // Vérification de l'unicité de l'email si modifié
+      if (email && email !== existingUser.email) {
+        const emailExists = await prisma.user.findUnique({ where: { email } });
+        if (emailExists) {
+          return res.status(400).json({ error: 'Cet email est déjà enregistré.' });
+        }
+      }
+  
+      // Vérification de l'unicité du numéro de téléphone si modifié
+      if (phoneNumber && phoneNumber !== existingUser.phoneNumber) {
+        const phoneExists = await prisma.user.findUnique({ where: { phoneNumber } });
+        if (phoneExists) {
+          return res.status(400).json({ error: 'Ce numéro de téléphone est déjà associé à un autre compte.' });
+        }
+      }
+  
+      // Préparation des données mises à jour
+      const updatedData = {
+        fullName: fullName || existingUser.fullName,
+        email: email || existingUser.email,
+        phoneNumber: phoneNumber || existingUser.phoneNumber,
+        role: role || existingUser.role,
+        status: status !== undefined ? status : existingUser.status,
+      };
+  
+      // Hash du mot de passe si un nouveau est fourni
+      if (password) {
+        updatedData.password = await bcrypt.hash(password, 12);
+      }
+  
+      // Mise à jour de l'utilisateur
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: updatedData,
       });
-
-      return res.status(200).json(updatedUser);
+  
+      return res.status(200).json({
+        message: 'Utilisateur mis à jour avec succès.',
+        user: {
+          id: updatedUser.id,
+          fullName: updatedUser.fullName,
+          email: updatedUser.email,
+          phoneNumber: updatedUser.phoneNumber,
+          role: updatedUser.role,
+          status: updatedUser.status,
+        },
+      });
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
-      return res.status(500).json({ message: 'Erreur interne du serveur.' });
+      console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
+  
+      if (error.code === 'P2002') {
+        const field = error.meta.target.includes('email') ? 'Email' : 'Numéro de téléphone';
+        return res.status(400).json({ error: `${field} déjà utilisé.` });
+      }
+  
+      return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
-
+  
   getAllUsers: async (req, res) => {
     try {
       const users = await prisma.user.findMany();

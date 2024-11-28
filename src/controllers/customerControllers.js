@@ -4,6 +4,10 @@ import { validationResult } from 'express-validator';
 const customerController = {
  
   addCustomer: async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
     const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } =
       req.body;
 
@@ -54,9 +58,23 @@ const customerController = {
   },
 
   updateCustomer: async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array().map(err => {
+        // Construire un message d'erreur plus détaillé
+          return err.param
+            ? `${err.msg} (Champ : ${err.param})`
+            : `${err.msg}`;
+        }),
+      });
+    }
+  
+    console.log('Données reçues :', req.body);
+
     const customerId = parseInt(req.params.id, 10);
     const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } =
-      req.body;
+    req.body;
 
     const user_id = req.user?.user_id;
     if (!user_id) {
@@ -78,14 +96,13 @@ const customerController = {
           .json({ error: 'Non autorisé à modifier ce client.' });
       }
 
-      const updatedData = {
-        fullName,
-        address,
-        phoneNumber,
-        nni,
-        birthDate: birthDate ? new Date(birthDate) : undefined,
-        drivingLicense,
-      };
+      const updatedData = {};
+      if (fullName) updatedData.fullName = fullName.trim();
+      if (address) updatedData.address = address.trim();
+      if (phoneNumber) updatedData.phoneNumber = phoneNumber;
+      if (nni) updatedData.nni = nni;
+      if (birthDate) updatedData.birthDate = new Date(birthDate);
+      if (drivingLicense) updatedData.drivingLicense = drivingLicense.trim();
 
       const updatedCustomer = await prisma.customer.update({
         where: { id: customerId },
@@ -94,11 +111,15 @@ const customerController = {
 
       return res.status(200).json(updatedCustomer);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du client :', error.message);
+      console.error('Erreur lors de la mise à jour :', error.message);
+
+      if (error.code === 'P2025') {
+        return res.status(404).json({ error: 'Client introuvable.' });
+      }
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
-
+   
   // Récupérer un client par ID
   getCustomerById: async (req, res) => {
     const customerId = parseInt(req.params.id, 10);

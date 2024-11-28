@@ -3,63 +3,52 @@ import prisma from '../config/db.js';
 
 export const UserValidators = {
   checkUniquePhoneNumber: async (phoneNumber, userId = null) => {
-    try {
-      const user = await prisma.user.findUnique({ where: { phoneNumber } });
-      if (user && user.id !== userId) {
-        throw new Error('Ce numéro de téléphone est déjà associé à un autre compte.');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la vérification du numéro de téléphone :', error);
-      throw new Error('Erreur interne. Veuillez réessayer plus tard.');
+    const user = await prisma.user.findUnique({ where: { phoneNumber } });
+    if (user && (!userId || user.id !== Number(userId))) {
+      throw new Error('Ce numéro de téléphone est déjà associé à un autre compte.');
     }
   },
+
   checkUniqueEmail: async (email, userId = null) => {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (user && user.id !== userId) {
+    if (user && (!userId || user.id !== Number(userId))) {
       throw new Error('Cet email est déjà enregistré.');
     }
   },
+  
 };
 
-// Validator for creating a user
 export const createUserValidator = [
+ 
   check('fullName')
-    .notEmpty()
-    .withMessage('Le nom complet est requis.')
-    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le nom complet ne doit contenir que des lettres et des espaces .')
-    .isLength({ max: 60 })
-    .withMessage('Le nom complet ne peut pas dépasser 60 caractères.'),
+    .notEmpty().withMessage('Le nom complet est requis.')
+    .isLength({ min: 3, max: 60 })
+    .withMessage('Le nom complet doit contenir entre 3 et 60 caractères.')  
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'’-]+$/).withMessage('Le nom doit contenir uniquement des lettres et espaces.'),
+
   check('email')
-    .notEmpty()
-    .withMessage('L\'email est requis.')
-    .isEmail()
-    .withMessage('L\'email doit être une adresse email valide.')
+    .notEmpty().withMessage('L\'email est requis.')
+    .isEmail().withMessage('L\'email doit être valide et ressembler à "exemple@domaine.com".')
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).withMessage('L\'email doit contenir un "@" et un domaine valide.')
     .custom(async (email) => {
       await UserValidators.checkUniqueEmail(email);
     }),
+
   check('phoneNumber')
-    .notEmpty()
-    .withMessage('Le numéro de téléphone est requis.')
-    .isNumeric()
-    .withMessage('Le numéro de téléphone doit être numérique.')
-    .isLength({ min: 8, max: 8 })
-    .withMessage('Le numéro de téléphone doit contenir exactement 8 chiffres.')
-    .matches(/^[234]\d{7}$/)
-    .withMessage('Le numéro de téléphone doit commencer par 2, 3 ou 4.')
+    .notEmpty().withMessage('Le numéro de téléphone est requis.')
+    .isLength({ min: 8, max: 8 }).withMessage('Le numéro doit contenir exactement 8 chiffres.')
+    .matches(/^[234]\d{7}$/).withMessage('Le numéro doit commencer par 2, 3 ou 4.')
     .custom(async (phoneNumber) => {
       await UserValidators.checkUniquePhoneNumber(phoneNumber);
     }),
-  
+
   check('password')
-    .notEmpty()
-    .withMessage('Le mot de passe est requis.')
-    .isLength({ min: 8 })
-    .withMessage('Le mot de passe doit contenir au moins 8 caractères.')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*\s).*$/, 'i')
-    .withMessage(
-      'Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule, un chiffre, et ne doit pas contenir d\'espaces.'
+    .notEmpty().withMessage('Le mot de passe est requis.')
+    .isLength({ min: 8 }).withMessage('Le mot de passe doit contenir au moins 8 caractères.')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/).withMessage(
+      'Le mot de passe doit contenir au moins une majuscule, une minuscule, et un chiffre.'
     ),
+
   check('role')
     .optional()
     .isString()
@@ -75,39 +64,34 @@ export const updateUserValidator = [
     .withMessage('L\'ID de l\'utilisateur est requis.')
     .isInt()
     .withMessage('L\'ID doit être un entier valide.'),
+
   check('fullName')
     .optional()
-    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le nom complet ne doit contenir que des lettres et des espaces .')
-    .isLength({ max: 60 })
-    .withMessage('Le nom complet ne peut pas dépasser 60 caractères.'),
+    .isLength({ min: 3, max: 60 })
+    .withMessage('Le nom complet doit contenir entre 3 et 60 caractères.')  
+    .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'’-]+$/).withMessage('Le nom doit contenir uniquement des lettres et espaces.'),
+       
   check('email')
     .optional()
-    .isEmail()
-    .withMessage('L\'email doit être une adresse email valide.')
+    .isEmail().withMessage('L\'email doit être valide.')
     .custom(async (email, { req }) => {
-      if (email) await UserValidators.checkUniqueEmail(email, req.params.id);
+      const userId = req.params.id;
+      await UserValidators.checkUniqueEmail(email, userId);
     }),
 
   check('phoneNumber')
     .optional()
-    .isNumeric()
-    .withMessage('Le numéro de téléphone doit être numérique.')
-    .isLength({ min: 8, max: 8 })
-    .withMessage('Le numéro de téléphone doit contenir exactement 8 chiffres.')
-    .matches(/^[234]\d{7}$/)
-    .withMessage('Le numéro de téléphone doit commencer par 2, 3 ou 4.')
+    .isLength({ min: 8, max: 8 }).withMessage('Le numéro doit contenir exactement 8 chiffres.')
     .custom(async (phoneNumber, { req }) => {
-      if (phoneNumber) await UserValidators.checkUniquePhoneNumber(phoneNumber, req.params.id);
-    }),
+      const userId = req.params.id;
+      await UserValidators.checkUniquePhoneNumber(phoneNumber, userId);
+    }),    
   check('password')
     .optional()
-    .isLength({ min: 8 })
-    .withMessage('Le mot de passe doit contenir au moins 8 caractères.')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?!.*\s).*$/, 'i')
-    .withMessage(
-      'Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule, un chiffre, et ne doit pas contenir d\'espaces.'
-    ),
+    .isLength({ min: 8 }).withMessage('Le mot de passe doit contenir au moins 8 caractères.')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/).withMessage(
+      'Le mot de passe doit contenir au moins une majuscule, une minuscule, et un chiffre.'
+    ),      
   check('role')
     .optional()
     .isString()

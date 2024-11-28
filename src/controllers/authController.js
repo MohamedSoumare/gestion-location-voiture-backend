@@ -37,21 +37,41 @@ export const refreshToken = async (req, res) => {
 // Connexion de l'utilisateur
 export const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
+    // Recherche de l'utilisateur par email
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(404).json({ error: 'Email incorrect.' });
-  
+    if (!user) {
+      return res.status(404).json({ error: 'Email incorrect.' });
+    }
+
+    // Vérification du mot de passe
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: 'Mot de passe incorrect.' });
-  
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Mot de passe incorrect.' });
+    }
+
+    // Vérification du statut de l'utilisateur
     if (!user.status) {
       return res.status(403).json({ error: 'Compte inactif. Contactez l\'administrateur.' });
     }
-  
+
+    // Génération des tokens
     const token = generateToken(user, process.env.JWT_SECRET, '1h');
     const refreshToken = generateToken(user, process.env.JWT_REFRESH_SECRET, '7d');
-    res.status(200).json({ message: 'Connexion réussie', token, refreshToken });
-  
+
+    // Réponse avec les informations utilisateur et les tokens
+    res.status(200).json({
+      message: 'Connexion réussie',
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      },
+      token,
+      refreshToken,
+    });
   } catch (error) {
     console.error('Erreur lors de la connexion:', error);
     return res.status(500).json({ message: 'Erreur interne du serveur.' });

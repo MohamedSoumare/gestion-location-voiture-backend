@@ -28,7 +28,7 @@ router.put(
 
 router.get(
   '/customers/:id',
-  authenticateToken,
+  authenticateToken,handleValidationErrors,
   authorizeRole(['ADMIN', 'EMPLOYE']),
   customerController.getCustomerById
 );
@@ -37,14 +37,14 @@ router.delete(
   '/customers/delete/:id',
   authenticateToken,
   authorizeRole(['ADMIN']),
-  deleteValidators,
   handleValidationErrors,
+  deleteValidators,
   customerController.deleteCustomer
 );
 
 router.get(
   '/customers',
-  authenticateToken,
+  authenticateToken,handleValidationErrors,
   authorizeRole(['ADMIN', 'EMPLOYE']),handleValidationErrors,
   customerController.getAllCustomers
 );

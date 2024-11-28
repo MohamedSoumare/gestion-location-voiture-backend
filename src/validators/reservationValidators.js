@@ -63,9 +63,10 @@ export const createReservationValidators = [
       return true;
     }),
   check('totalAmount')
-    .notEmpty()
-    .withMessage('Le montant total est requis.')
-    .isFloat({ min: 0.01 }).withMessage('Le montant total doit être supérieur à zéro.'),
+    .optional()
+    .isFloat({ min: 0.01, max: 99999999.99 }) // Ajoutez la limite supérieure
+    .withMessage('Le montant total doit être compris entre 0.01 et 99,999,999.99.'),
+
   handleValidationErrors,
 ];
 
@@ -113,8 +114,8 @@ export const updateReservationValidators = [
     }),
   check('totalAmount')
     .optional()
-    .isFloat({ min: 0.01 }).withMessage('Le montant total doit être supérieur à zéro.'),
-  
+    .isFloat({ min: 0.01, max: 99999999.99 }) // Ajoutez la limite supérieure
+    .withMessage('Le montant total doit être compris entre 0.01 et 99,999,999.99.'),
   handleValidationErrors,
 ];
 
