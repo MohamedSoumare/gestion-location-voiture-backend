@@ -1,499 +1,814 @@
 {
-  "info": {
-    "_postman_id": "1b6d7efe-f7a0-41d7-8456-ed2080fa4c46",
-    "name": "Collection-api-rental-cars",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "38822647"
-  },
-  "item": [
-    {
-      "name": "users",
-      "protocolProfileBehavior": {
-        "disableBodyPruning": true
-      },
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/users",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["users"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "users/:id",
-      "protocolProfileBehavior": {
-        "disableBodyPruning": true
-      },
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/users/4",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["users", "4"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "users/add",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"fullName\": \"Momodou Fall\",\r\n  \"email\": \"fall32@gmail.com\",\r\n  \"phoneNumber\": \"49491919\",\r\n  \"password\": \"Exemple2023\",\r\n  \"status\": true,\r\n  \"role\": \"employe\"\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/users/add",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["users", "add"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "users/edit/:id",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"fullName\": \"John Smith\",\r\n    \"email\": \"john@example.com\",\r\n    \"phoneNumber\": \"33654321\",\r\n    \"status\": false,\r\n    \"role\": \"employe\"\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/users/edit/10",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["users", "edit", "10"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "users/delet/:id",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/users/delete/10",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["users", "delete", "10"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "customers",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/customers",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["customers"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "customers/:id",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/customers/9",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["customers", "9"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "customers/add",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"fullName\": \"Ousmane Sy\",\r\n  \"address\": \"Arrafat\",\r\n  \"phoneNumber\": \"46145001\",\r\n  \"nni\": \"1104503064\",\r\n  \"birthDate\": \"2011-03-12\",\r\n  \"drivingLicense\": \"MR-9876543\"\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/customers/add",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["customers", "add"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "customers/update/:id",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"fullName\": \"Ousmane Sy\",\r\n  \"address\": \"Arrafat\",\r\n  \"phoneNumber\": \"36645001\",\r\n  \"nni\": \"1100503060\",\r\n  \"birthDate\": \"2015-03-12\",\r\n  \"drivingLicense\": \"MR-1875543\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/customers/update/24",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["customers", "update", "24"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "customers/delete/:id",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/customers/delete/24",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["customers", "delete", "24"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "reservations",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/reservations",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["reservations"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "reservations/:id",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/reservations/3",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["reservations", "3"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "reservations/add",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"vehicle_id\": 8,\r\n  \"customer_id\": 1,\r\n  \"startDate\": \"2024-10-29\",\r\n  \"endDate\": \"2024-10-30\",\r\n  \"totalAmount\": 100.50,\r\n  \"status\": \"ENCOURS\"\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/reservations/add",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["reservations", "add"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "reservations/edit/:id",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"vehicle_id\": 8,\r\n  \"customer_id\": 1,\r\n  \"startDate\": \"2024-10-29\",\r\n  \"endDate\": \"2024-10-30\",\r\n  \"totalAmount\": 100.50,\r\n  \"status\": \"Reservé\"\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/reservations/edit/8",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["reservations", "edit", "8"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "reservations/delete/:id",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/reservations/delete/2",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["reservations", "delete", "2"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "vehicules",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/vehicles",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["vehicles"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "vehicules/:id",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/vehicles/8",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["vehicles", "8"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "vehicules/add",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n       \"brand\": \"Ford\",\r\n        \"model\": \"Allamend\",\r\n        \"year\": 2020,\r\n        \"registrationPlate\": \"1420-JKL\",\r\n        \"status\": \"maintenance\",\r\n        \"seatCount\": 5,\r\n        \"doorCount\": 4,\r\n        \"color\": \"Gray\",\r\n        \"fuelType\": \"Diesel\",\r\n        \"transmissionType\": \"Automatique\",\r\n        \"airConditioning\": true,\r\n        \"dailyRate\": \"400\"\r\n     \r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/vehicles/add",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["vehicles", "add"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "vehicules/edit",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n       \"brand\": \"Ford\",\r\n        \"model\": \"gorge\",\r\n        \"year\": 2005,\r\n        \"registrationPlate\": \"MR-1010\",\r\n        \"status\": \"Disponibles\",\r\n        \"seatCount\": 5,\r\n        \"doorCount\": 4,\r\n        \"color\": \"Gray\",\r\n        \"fuelType\": \"Diesel\",\r\n        \"transmissionType\": \"Automatique\",\r\n        \"airConditioning\": true,\r\n        \"dailyRate\": \"400\"\r\n     \r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/vehicles/edit/9",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["vehicles", "edit", "9"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "vehicles/delete/:id",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/vehicles/delete/9",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["vehicles", "delete", "9"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "contrats",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/contracts",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["contracts"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "contrats/:id",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/contracts/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["contracts", "1"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "contrats/add",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"contractNumber\": \"C-2024-001\",\r\n  \"startDate\": \"2024-11-13\",\r\n  \"returnDate\": \"2024-11-14\",\r\n  \"totalAmount\": 500.00,\r\n  \"status\": \"valider\",\r\n  \"vehicle_id\": 10,\r\n  \"customer_id\": 8\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/contracts/add",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["contracts", "add"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "contrats/update/:id",
-      "request": {
-        "method": "PUT",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"contractNumber\": \"CT-24-001\",\r\n  \"startDate\": \"2024-11-12\",\r\n  \"returnDate\": \"2024-11-14\",\r\n  \"totalAmount\": 1000.00,\r\n  \"status\": \"valider\",\r\n  \"vehicle_id\": 10,\r\n  \"customer_id\": 8\r\n}\r\n",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:5000/contracts/update/5",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["contracts", "update", "5"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "contracts/delete/:id",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:5000/contracts/delete/5",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "5000",
-          "path": ["contracts", "delete", "5"]
-        }
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "1b6d7efe-f7a0-41d7-8456-ed2080fa4c46",
+		"name": "Collection-api-rental-cars",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38822647"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "users/add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Ali Soumare\",\r\n  \"email\": \"alisoumare67@gmail.com\",\r\n  \"phoneNumber\": \"40404949\",\r\n  \"password\": \"Admin12345\",\r\n  \"status\": true,\r\n  \"role\": \"admin\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/users/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users/:id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/users/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users/edit/:id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n   \r\n        \"fullName\": \"Daouda\",\r\n        \"email\": \"daouda@gmail.com\",\r\n        \"phoneNumber\": \"43330012\",\r\n        \"password\": \"psswrd123\",\r\n        \"status\": false,\r\n        \"role\": \"employe\"\r\n\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/users/edit/10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users",
+								"edit",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users/delet/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/users/delete/10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users",
+								"delete",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3MzI2MzU2MjQsImV4cCI6MTczMjYzOTIyNH0.FldjTuIRRhVOm5p6TuVD-cPe-pwEx0lAkYeiGeIMNMM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users/profil",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3MzI5NTg1MDQsImV4cCI6MTczMjk2MjEwNH0.WTUHIw49ym1FlmL6EzKUQkUI1GU_rBTt56jknhEwUfU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/users/profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "users/reset-password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3MzI5NTg1MDQsImV4cCI6MTczMjk2MjEwNH0.WTUHIw49ym1FlmL6EzKUQkUI1GU_rBTt56jknhEwUfU",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"password\":\"Alismre1234\",\r\n  \"newPassword\":\"Ali49491916\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/profile/update-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"profile",
+								"update-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "customers",
+			"item": [
+				{
+					"name": "customers/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/customers/9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "customers/update/:id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Ousmane Sy\",\r\n  \"address\": \"Arrafat\",\r\n  \"phoneNumber\": \"36645001\",\r\n  \"nni\": \"1100503060\",\r\n  \"birthDate\": \"2015-03-12\",\r\n  \"drivingLicense\": \"MR-1875543\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/customers/update/24",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"update",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "customers/add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Ousmane Sy\",\r\n  \"address\": \"Arrafat\",\r\n  \"phoneNumber\": \"46145001\",\r\n  \"nni\": \"1104503064\",\r\n  \"birthDate\": \"2011-03-12\",\r\n  \"drivingLicense\": \"MR-9876543\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/customers/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "customers/delete/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/customers/delete/24",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"customers",
+								"delete",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"customers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "reservations",
+			"item": [
+				{
+					"name": "reservations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/reservations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reservations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reservations/add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"vehicle_id\": 8,\r\n  \"customer_id\": 1,\r\n  \"startDate\": \"2024-10-29\",\r\n  \"endDate\": \"2024-10-30\",\r\n  \"totalAmount\": 100.50,\r\n  \"status\": \"ENCOURS\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/reservations/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reservations",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reservations/delete/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/reservations/delete/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reservations",
+								"delete",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reservations/edit/:id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"vehicle_id\": 8,\r\n  \"customer_id\": 1,\r\n  \"startDate\": \"2024-10-29\",\r\n  \"endDate\": \"2024-10-30\",\r\n  \"totalAmount\": 100.50,\r\n  \"status\": \"Reservé\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/reservations/edit/8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reservations",
+								"edit",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reservations/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/reservations/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reservations",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "vehicles",
+			"item": [
+				{
+					"name": "vehicules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"vehicles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vehicules/add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n       \"brand\": \"Ford\",\r\n        \"model\": \"Allamend\",\r\n        \"year\": 2020,\r\n        \"registrationPlate\": \"1420-JKL\",\r\n        \"status\": \"maintenance\",\r\n        \"seatCount\": 5,\r\n        \"doorCount\": 4,\r\n        \"color\": \"Gray\",\r\n        \"fuelType\": \"Diesel\",\r\n        \"transmissionType\": \"Automatique\",\r\n        \"airConditioning\": true,\r\n        \"dailyRate\": \"400\"\r\n     \r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/vehicles/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"vehicles",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vehicles/delete/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/vehicles/delete/9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"vehicles",
+								"delete",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vehicules/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/vehicles/8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"vehicles",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vehicules/edit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n       \"brand\": \"Ford\",\r\n        \"model\": \"gorge\",\r\n        \"year\": 2005,\r\n        \"registrationPlate\": \"MR-1010\",\r\n        \"status\": \"Disponibles\",\r\n        \"seatCount\": 5,\r\n        \"doorCount\": 4,\r\n        \"color\": \"Gray\",\r\n        \"fuelType\": \"Diesel\",\r\n        \"transmissionType\": \"Automatique\",\r\n        \"airConditioning\": true,\r\n        \"dailyRate\": \"400\"\r\n     \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/vehicles/edit/9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"vehicles",
+								"edit",
+								"9"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "contract",
+			"item": [
+				{
+					"name": "contracts/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/contracts/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"contracts",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contracts/add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"contractNumber\": \"C-2024-001\",\r\n  \"startDate\": \"2024-11-13\",\r\n  \"returnDate\": \"2024-11-14\",\r\n  \"totalAmount\": 500.00,\r\n  \"status\": \"valider\",\r\n  \"vehicle_id\": 10,\r\n  \"customer_id\": 8\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/contracts/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"contracts",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contracts/update/:id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"contractNumber\": \"CT-24-001\",\r\n  \"startDate\": \"2024-11-12\",\r\n  \"returnDate\": \"2024-11-14\",\r\n  \"totalAmount\": 1000.00,\r\n  \"status\": \"valider\",\r\n  \"vehicle_id\": 10,\r\n  \"customer_id\": 8\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/contracts/update/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"contracts",
+								"update",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contracts/delete/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/contracts/delete/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"contracts",
+								"delete",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contracts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/contracts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"contracts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "update-profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Nouveau Nom\",\r\n  \"email\": \"nouveau.email@example.com\",\r\n  \"phoneNumber\": \"123456789\",\r\n  \"password\": \"nouveaumotdepasse\",\r\n  \"status\": true,\r\n  \"role\": \"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/users/update-profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"users",
+								"update-profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n  \"email\": \"admin@admin.com\",\r\n  \"password\": \"Admin12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
 }

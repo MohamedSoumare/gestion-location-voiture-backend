@@ -8,7 +8,7 @@ const userController = {
     const validRoles = ['ADMIN', 'EMPLOYE'];
 
     try {
-    // Vérification du rôle
+      // Vérification du rôle
       if (role && !validRoles.includes(role)) {
         return res.status(400).json({ message: 'Rôle invalide.' });
       }
@@ -48,41 +48,53 @@ const userController = {
     } catch (error) {
       console.error('Erreur lors de la création de l\'utilisateur :', error);
       if (error.code === 'P2002') {
-        const field = error.meta.target.includes('email') ? 'Email' : 'Numéro de téléphone';
+        const field = error.meta.target.includes('email')
+          ? 'Email'
+          : 'Numéro de téléphone';
         return res.status(400).json({ message: `${field} déjà utilisé.` });
       }
       return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
 
-
   updateUser: async (req, res) => {
     const userId = Number(req.params.id);
     const { fullName, email, phoneNumber, password, status, role } = req.body;
-  
+
     try {
       // Vérification si l'utilisateur existe
-      const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+      });
       if (!existingUser) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
-  
+
       // Vérification de l'unicité de l'email si modifié
       if (email && email !== existingUser.email) {
         const emailExists = await prisma.user.findUnique({ where: { email } });
         if (emailExists) {
-          return res.status(400).json({ error: 'Cet email est déjà enregistré.' });
+          return res
+            .status(400)
+            .json({ error: 'Cet email est déjà enregistré.' });
         }
       }
-  
+
       // Vérification de l'unicité du numéro de téléphone si modifié
       if (phoneNumber && phoneNumber !== existingUser.phoneNumber) {
-        const phoneExists = await prisma.user.findUnique({ where: { phoneNumber } });
+        const phoneExists = await prisma.user.findUnique({
+          where: { phoneNumber },
+        });
         if (phoneExists) {
-          return res.status(400).json({ error: 'Ce numéro de téléphone est déjà associé à un autre compte.' });
+          return res
+            .status(400)
+            .json({
+              error:
+                'Ce numéro de téléphone est déjà associé à un autre compte.',
+            });
         }
       }
-  
+
       // Préparation des données mises à jour
       const updatedData = {
         fullName: fullName || existingUser.fullName,
@@ -91,18 +103,20 @@ const userController = {
         role: role || existingUser.role,
         status: status !== undefined ? status : existingUser.status,
       };
-  
-      // Hash du mot de passe si un nouveau est fourni
+
+      // Mise à jour du mot de passe si un nouveau est fourni
       if (password) {
         updatedData.password = await bcrypt.hash(password, 12);
+      } else {
+        updatedData.password = existingUser.password; // Conserver l'ancien mot de passe
       }
-  
+
       // Mise à jour de l'utilisateur
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: updatedData,
       });
-  
+
       return res.status(200).json({
         message: 'Utilisateur mis à jour avec succès.',
         user: {
@@ -116,16 +130,18 @@ const userController = {
       });
     } catch (error) {
       console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
-  
+
       if (error.code === 'P2002') {
-        const field = error.meta.target.includes('email') ? 'Email' : 'Numéro de téléphone';
+        const field = error.meta.target.includes('email')
+          ? 'Email'
+          : 'Numéro de téléphone';
         return res.status(400).json({ error: `${field} déjà utilisé.` });
       }
-  
+
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
-  
+
   getAllUsers: async (req, res) => {
     try {
       const users = await prisma.user.findMany();
@@ -139,7 +155,9 @@ const userController = {
   getUserById: async (req, res) => {
     const { id } = req.params;
     try {
-      const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(id) },
+      });
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
@@ -153,13 +171,17 @@ const userController = {
   deleteUser: async (req, res) => {
     const { id } = req.params;
     try {
-      const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(id) },
+      });
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
 
       await prisma.user.delete({ where: { id: parseInt(id) } });
-      return res.status(200).json({ message: 'Utilisateur supprimé avec succès.' });
+      return res
+        .status(200)
+        .json({ message: 'Utilisateur supprimé avec succès.' });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Erreur interne du serveur.' });
@@ -184,32 +206,30 @@ const userController = {
     const userId = req.user.user_id;
     const { fullName, email, phoneNumber, password, status, role } = req.body;
 
-  
     try {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
         return res.status(404).json({ error: 'Utilisateur non trouvé.' });
       }
-  
+
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
           fullName: fullName || user.fullName,
           email: email || user.email,
           phoneNumber: phoneNumber || user.phoneNumber,
-          // password: password || user.password,
+          password: password || user.password,
           status: status || user.status,
           role: role || user.role,
         },
       });
-  
+
       return res.status(200).json(updatedUser);
     } catch (error) {
       console.error('Erreur lors de la mise à jour du profil :', error);
       return res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
   },
-  
 
   updatePassword: async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -223,7 +243,9 @@ const userController = {
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res.status(400).json({ error: 'Mot de passe actuel incorrect.' });
+        return res
+          .status(400)
+          .json({ error: 'Mot de passe actuel incorrect.' });
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 12);
@@ -232,7 +254,9 @@ const userController = {
         data: { password: hashedPassword },
       });
 
-      return res.status(200).json({ message: 'Mot de passe mis à jour avec succès.' });
+      return res
+        .status(200)
+        .json({ message: 'Mot de passe mis à jour avec succès.' });
     } catch (error) {
       console.error('Erreur lors de la mise à jour du mot de passe:', error);
       return res.status(500).json({ message: 'Erreur interne du serveur.' });

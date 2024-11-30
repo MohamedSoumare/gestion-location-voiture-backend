@@ -1,13 +1,15 @@
 import express from 'express';
-import userController from '../controllers/userControllers.js'; 
+import userController from '../controllers/userControllers.js';
 import {
   createUserValidator,
   updateUserValidator,
   deleteUserValidator,
   handleValidationErrors,
 } from '../validators/userValidators.js';
-import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
-
+import {
+  authenticateToken,
+  authorizeRole,
+} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -41,6 +43,15 @@ router.delete(
   userController.deleteUser
 );
 
+// Route to get all users
+router.get(
+  '/users',
+  authenticateToken,
+  authorizeRole(['ADMIN']),
+  handleValidationErrors,
+  userController.getAllUsers
+);
+
 // Route to update profile
 router.put(
   '/users/update-profile',
@@ -48,7 +59,6 @@ router.put(
   handleValidationErrors,
   userController.updateProfile
 );
-
 // Route to get profile
 router.get(
   '/users/profile',
@@ -57,12 +67,9 @@ router.get(
   userController.getProfile
 );
 
-// Route to get all users
-router.get('/users', authenticateToken, authorizeRole(['ADMIN']), handleValidationErrors, userController.getAllUsers);
-
 // Route to update password
 router.put(
-  '/update-password',
+  '/profile/update-password',
   authenticateToken,
   handleValidationErrors,
   userController.updatePassword

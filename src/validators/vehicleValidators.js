@@ -5,13 +5,14 @@ import prisma from '../config/db.js';
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const extractedErrors = errors.array().map(err => ({
+    const extractedErrors = errors.array().map((err) => ({
       field: err.param,
       message: err.msg,
     }));
     return res.status(400).json({
       success: false,
-      message: 'Certains champs contiennent des erreurs. Veuillez les corriger.',
+      message:
+        'Certains champs contiennent des erreurs. Veuillez les corriger.',
       errors: extractedErrors,
     });
   }
@@ -25,28 +26,33 @@ export const createVehicleValidators = [
     .withMessage('La marque est obligatoire.')
     .matches(/^[A-Za-z]+( [A-Za-z]+)*$/)
     .withMessage('La marque ne peut contenir que des lettres et des espaces.'),
-  
+
   // Validation du modèle
   check('model')
     .notEmpty()
     .withMessage('Le modèle est obligatoire.')
     .matches(/^(?=.*[A-Za-z0-9])[A-Za-z0-9. ]+$/)
-    .withMessage('Le modèle ne peut contenir que des lettres, chiffres, espaces, et points, et doit inclure au moins un caractère alphanumérique.'),
-
+    .withMessage(
+      'Le modèle ne peut contenir que des lettres, chiffres, espaces, et points, et doit inclure au moins un caractère alphanumérique.'
+    ),
 
   // Validation de l'année
   check('year')
     .notEmpty()
     .withMessage('L\'année du véhicule est obligatoire.')
     .isInt({ min: 2000, max: new Date().getFullYear() })
-    .withMessage(`L'année doit être un entier compris entre 2000 et ${new Date().getFullYear()}.`),
+    .withMessage(
+      `L'année doit être un entier compris entre 2000 et ${new Date().getFullYear()}.`
+    ),
 
   // Validation de la plaque d'immatriculation
   check('registrationPlate')
     .notEmpty()
     .withMessage('La plaque d\'immatriculation est obligatoire.')
     .matches(/^\d{4}\s[A-Z]{2}\s\d{2}$/i)
-    .withMessage('Le numéro d\'immatriculation doit suivre le format 1234 XX 00 (4 chiffres, 2 lettres alphabétiques, puis 2 chiffres).')
+    .withMessage(
+      'Le numéro d\'immatriculation doit suivre le format 1234 XX 00 (4 chiffres, 2 lettres alphabétiques, puis 2 chiffres).'
+    )
     .custom(async (value) => {
       const existingVehicle = await prisma.vehicle.findFirst({
         where: { registrationPlate: value },
@@ -81,24 +87,29 @@ export const createVehicleValidators = [
     .notEmpty()
     .withMessage('Le type de carburant est obligatoire.')
     .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le type de carburant doit être une chaîne de caractères valide.'),
+    .withMessage(
+      'Le type de carburant doit être une chaîne de caractères valide.'
+    ),
 
   // Validation du type de transmission
   check('transmissionType')
     .notEmpty()
     .withMessage('Le type de transmission est obligatoire.')
     .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le type de transmission doit être une chaîne de caractères valide.'),
+    .withMessage(
+      'Le type de transmission doit être une chaîne de caractères valide.'
+    ),
 
   check('dailyRate')
     .notEmpty()
     .withMessage('Le tarif journalier est obligatoire.')
     .isFloat({ min: 0.01 })
-    .withMessage('Le tarif journalier doit être un nombre décimal valide supérieur à zéro.'),
+    .withMessage(
+      'Le tarif journalier doit être un nombre décimal valide supérieur à zéro.'
+    ),
 
   handleValidationErrors,
 ];
-
 
 export const updateVehicleValidators = [
   check('brand')
@@ -109,18 +120,23 @@ export const updateVehicleValidators = [
   check('model')
     .optional()
     .matches(/^(?=.*[A-Za-z0-9])[A-Za-z0-9. ]+$/)
-    .withMessage('Le modèle ne peut contenir que des lettres, chiffres, espaces, et points, et doit inclure au moins un caractère alphanumérique.'),
-  
-  
+    .withMessage(
+      'Le modèle ne peut contenir que des lettres, chiffres, espaces, et points, et doit inclure au moins un caractère alphanumérique.'
+    ),
+
   check('year')
     .optional()
     .isInt({ min: 2000, max: new Date().getFullYear() })
-    .withMessage(`L'année doit être un entier compris entre 2000 et ${new Date().getFullYear()}.`),
+    .withMessage(
+      `L'année doit être un entier compris entre 2000 et ${new Date().getFullYear()}.`
+    ),
 
   check('registrationPlate')
     .optional()
     .matches(/^\d{4}\s[A-Z]{2}\s\d{2}$/i)
-    .withMessage('Le numéro d\'immatriculation doit suivre le format 1234 XX 00 (4 chiffres, 2 lettres alphabétiques, puis 2 chiffres).')
+    .withMessage(
+      'Le numéro d\'immatriculation doit suivre le format 1234 XX 00 (4 chiffres, 2 lettres alphabétiques, puis 2 chiffres).'
+    )
     .custom(async (value, { req }) => {
       const vehicleId = parseInt(req.params.id, 10);
       const existingVehicle = await prisma.vehicle.findFirst({
@@ -152,17 +168,23 @@ export const updateVehicleValidators = [
   check('fuelType')
     .optional()
     .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le type de carburant doit être une chaîne de caractères valide.'),
+    .withMessage(
+      'Le type de carburant doit être une chaîne de caractères valide.'
+    ),
 
   check('transmissionType')
     .optional()
     .matches(/^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/)
-    .withMessage('Le type de transmission doit être une chaîne de caractères valide.'),
+    .withMessage(
+      'Le type de transmission doit être une chaîne de caractères valide.'
+    ),
 
   check('dailyRate')
     .optional()
     .isFloat({ min: 0.01 })
-    .withMessage('Le tarif journalier doit être un nombre décimal valide supérieur à zéro.'),
+    .withMessage(
+      'Le tarif journalier doit être un nombre décimal valide supérieur à zéro.'
+    ),
 
   handleValidationErrors,
 ];
@@ -183,5 +205,5 @@ export const deleteVehicleValidators = [
       }
     }),
 
-  handleValidationErrors
+  handleValidationErrors,
 ];

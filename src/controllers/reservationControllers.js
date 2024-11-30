@@ -9,7 +9,8 @@ export const reservationController = {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } = req.body;
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
+      req.body;
     const user_id = req.user?.user_id;
 
     if (!user_id) {
@@ -78,7 +79,7 @@ export const reservationController = {
     }
 
     try {
-    // Recherche la réservation dans la base de données avec l'ID donné
+      // Recherche la réservation dans la base de données avec l'ID donné
       const reservation = await prisma.reservation.findUnique({
         where: { id: Number(id) }, // Utilise l'ID passé dans les paramètres
         include: {
@@ -96,7 +97,9 @@ export const reservationController = {
       if (reservation.user_id === user_id) {
         return res.status(200).json(reservation);
       } else {
-        return res.status(403).json({ error: 'Accès non autorisé à cette réservation.' });
+        return res
+          .status(403)
+          .json({ error: 'Accès non autorisé à cette réservation.' });
       }
     } catch (error) {
       console.error('Get Reservation By ID Error:', error.message); // Log l'erreur dans la console
@@ -139,7 +142,8 @@ export const reservationController = {
     }
 
     const { id } = req.params;
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } = req.body;
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
+      req.body;
     const user_id = req.user?.user_id;
 
     if (!user_id) {
@@ -174,7 +178,9 @@ export const reservationController = {
       return res.status(200).json(updatedReservation);
     } catch (error) {
       console.error('Update Reservation Error:', error.message);
-      return res.status(500).json({ error: `Erreur lors de la mise à jour: ${error.message}` });
+      return res
+        .status(500)
+        .json({ error: `Erreur lors de la mise à jour: ${error.message}` });
     }
   },
 
@@ -190,7 +196,7 @@ export const reservationController = {
     if (!['CONFIRMER', 'EN_ATTENTE', 'ANNULLER'].includes(status)) {
       return res.status(400).json({ error: 'Statut invalide.' });
     }
-  
+
     try {
       const reservation = await prisma.reservation.findUnique({
         where: { id: Number(id) },
@@ -199,7 +205,6 @@ export const reservationController = {
       if (!reservation || reservation.user_id !== user_id) {
         return res.status(403).json({ error: 'Accès non autorisé.' });
       }
-
 
       const updatedStatus = await prisma.reservation.update({
         where: { id: Number(id) },
@@ -234,14 +239,20 @@ export const reservationController = {
       }
 
       if (reservation.status === 'CONFIRMER') {
-        return res.status(400).json({ error: 'Impossible de supprimer une réservation confirmée.' });
+        return res
+          .status(400)
+          .json({
+            error: 'Impossible de supprimer une réservation confirmée.',
+          });
       }
 
       await prisma.reservation.delete({ where: { id: Number(id) } });
       return res.status(204).send();
     } catch (error) {
       console.error('Delete Reservation Error:', error.message);
-      return res.status(500).json({ error: `Erreur lors de la suppression: ${error.message}` });
+      return res
+        .status(500)
+        .json({ error: `Erreur lors de la suppression: ${error.message}` });
     }
   },
 };

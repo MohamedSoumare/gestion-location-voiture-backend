@@ -2,7 +2,6 @@ import prisma from '../config/db.js';
 import { validationResult } from 'express-validator';
 
 const customerController = {
- 
   addCustomer: async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -61,20 +60,18 @@ const customerController = {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
-        errors: errors.array().map(err => {
-        // Construire un message d'erreur plus détaillé
-          return err.param
-            ? `${err.msg} (Champ : ${err.param})`
-            : `${err.msg}`;
+        errors: errors.array().map((err) => {
+          // Construire un message d'erreur plus détaillé
+          return err.param ? `${err.msg} (Champ : ${err.param})` : `${err.msg}`;
         }),
       });
     }
-  
+
     console.log('Données reçues :', req.body);
 
     const customerId = parseInt(req.params.id, 10);
     const { fullName, address, phoneNumber, nni, birthDate, drivingLicense } =
-    req.body;
+      req.body;
 
     const user_id = req.user?.user_id;
     if (!user_id) {
@@ -119,7 +116,7 @@ const customerController = {
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
-   
+
   // Récupérer un client par ID
   getCustomerById: async (req, res) => {
     const customerId = parseInt(req.params.id, 10);
@@ -144,7 +141,10 @@ const customerController = {
 
       return res.status(200).json(customer);
     } catch (error) {
-      console.error('Erreur lors de la récupération du client :', error.message);
+      console.error(
+        'Erreur lors de la récupération du client :',
+        error.message
+      );
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
@@ -164,35 +164,38 @@ const customerController = {
 
       return res.status(200).json(customers);
     } catch (error) {
-      console.error('Erreur lors de la récupération des clients :', error.message);
+      console.error(
+        'Erreur lors de la récupération des clients :',
+        error.message
+      );
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
   deleteCustomer: async (req, res) => {
     const customerId = parseInt(req.params.id, 10);
     const user_id = req.user?.user_id;
-  
+
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
-  
+
     try {
       // Vérifie si le client existe
       const customer = await prisma.customer.findUnique({
         where: { id: customerId },
       });
-  
+
       if (!customer) {
         return res.status(404).json({ error: 'Client non trouvé.' });
       }
-  
+
       // Vérifie si l'utilisateur est autorisé
       if (customer.user_id !== user_id) {
         return res
           .status(403)
           .json({ error: 'Non autorisé à supprimer ce client.' });
       }
-  
+
       // Vérifie si le client a des réservations actives
       const hasActiveReservations = await prisma.reservation.findFirst({
         where: {
@@ -202,7 +205,7 @@ const customerController = {
           },
         },
       });
-  
+
       // Vérifie si le client a des contrats actifs
       const hasActiveContracts = await prisma.contract.findFirst({
         where: {
@@ -212,7 +215,7 @@ const customerController = {
           },
         },
       });
-  
+
       if (hasActiveReservations || hasActiveContracts) {
         return res.status(400).json({
           errorCode: 'RESERVATIONS_OR_CONTRACTS_ACTIVE',
@@ -220,21 +223,21 @@ const customerController = {
             'Impossible de supprimer le client car il a des réservations ou des contrats actifs.',
         });
       }
-  
+
       // Supprime le client
       await prisma.customer.delete({ where: { id: customerId } });
-  
+
       return res.status(200).json({ message: 'Client supprimé avec succès.' });
     } catch (error) {
       console.error('Erreur lors de la suppression du client:', error);
-  
+
       if (error.code === 'P2025') {
         return res.status(404).json({
           errorCode: 'CUSTOMER_NOT_FOUND',
           message: 'Le client n\'existe pas.',
         });
       }
-  
+
       if (error.code === 'P2003') {
         return res.status(409).json({
           errorCode: 'CUSTOMER_ASSOCIATED_DATA',
@@ -242,12 +245,12 @@ const customerController = {
             'Le client ne peut pas être supprimé car il est associé à des réservations ou des contrats.',
         });
       }
-  
+
       return res.status(500).json({
         message: 'Une erreur est survenue lors de la suppression du client.',
       });
     }
   },
 };
-  
+
 export default customerController;

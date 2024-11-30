@@ -10,9 +10,6 @@ Avant de démarrer, assurez-vous d'avoir installé les logiciels suivants :
 
 - **Node.js** (version 14 ou supérieure)
 - **PostgreSQL** (version 12 ou supérieure)
-- **npm** (le gestionnaire de paquets Node.js)
-- **Prisma** (ORM pour la gestion de la base de données)
-- **Express.js** (version 4+)
 - **Postman** (pour tester l'API)
 - **Git** (pour cloner et gérer le projet)
 
@@ -75,9 +72,34 @@ Pour remplir la base de données avec des données de test :
 npm run seed
 ```
 
+Après l'exécution du script, les utilisateurs suivants seront disponibles dans la base de données :
+
+```json
+{
+  "email": "admin@admin.com",
+  "password": "Admin1234"
+}
+```
+
+## Analyse et formatage de code
+
+L'analyse statique du code est réalisée avec **ESLint** et le formatage avec **Prettier**.
+
+### Pour lancer l'analyse du code :
+
+```bash
+npm run lint
+```
+
+### Pour lancer le formatage du code :
+
+```bash
+npm run format
+```
+
 ## Documentation des Endpoints API
 
-Vous pouvez importer la collection Postman `Collection-api-rental-cars.postman_collection.json` disponible à la racine du projet pour tester facilement tous les endpoints.
+Vous pouvez importer la collection Postman **Collection-api-rental-cars.postman_collection.json**, disponible à la racine du projet, pour tester facilement tous les endpoints sur **[Postman](https://www.postman.com/)**.
 
 ### Endpoints Principaux
 
@@ -94,10 +116,6 @@ Vous pouvez importer la collection Postman `Collection-api-rental-cars.postman_c
 - Mots de passe hashés avec bcrypt
 - Validation des entrées
 - Gestion des rôles et des autorisations
-
-## Licence
-
-Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
 
 ## Auteur
 

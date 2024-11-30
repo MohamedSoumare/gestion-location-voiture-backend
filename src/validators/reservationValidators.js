@@ -5,7 +5,7 @@ import prisma from '../config/db.js';
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const extractedErrors = errors.array().map(err => ({
+    const extractedErrors = errors.array().map((err) => ({
       field: err.param,
       message: err.msg,
     }));
@@ -65,7 +65,9 @@ export const createReservationValidators = [
   check('totalAmount')
     .optional()
     .isFloat({ min: 0.01, max: 99999999.99 }) // Ajoutez la limite supérieure
-    .withMessage('Le montant total doit être compris entre 0.01 et 99,999,999.99.'),
+    .withMessage(
+      'Le montant total doit être compris entre 0.01 et 99,999,999.99.'
+    ),
 
   handleValidationErrors,
 ];
@@ -98,7 +100,7 @@ export const updateReservationValidators = [
     }),
   check('startDate')
     .optional()
-    .isISO8601()  
+    .isISO8601()
     .toDate()
     .withMessage('La date de début doit être au format YYYY-MM-DD.'),
   check('endDate')
@@ -115,7 +117,9 @@ export const updateReservationValidators = [
   check('totalAmount')
     .optional()
     .isFloat({ min: 0.01, max: 99999999.99 }) // Ajoutez la limite supérieure
-    .withMessage('Le montant total doit être compris entre 0.01 et 99,999,999.99.'),
+    .withMessage(
+      'Le montant total doit être compris entre 0.01 et 99,999,999.99.'
+    ),
   handleValidationErrors,
 ];
 

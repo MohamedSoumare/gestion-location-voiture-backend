@@ -6,7 +6,10 @@ import {
   updateValidators,
   deleteValidators,
 } from '../validators/customerValidators.js';
-import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
+import {
+  authenticateToken,
+  authorizeRole,
+} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -14,7 +17,8 @@ router.post(
   '/customers/add',
   authenticateToken,
   authorizeRole(['ADMIN', 'EMPLOYE']),
-  createValidators,handleValidationErrors,
+  createValidators,
+  handleValidationErrors,
   customerController.addCustomer
 );
 
@@ -22,13 +26,15 @@ router.put(
   '/customers/update/:id',
   authenticateToken,
   authorizeRole(['ADMIN', 'EMPLOYE']),
-  updateValidators,handleValidationErrors,
+  updateValidators,
+  handleValidationErrors,
   customerController.updateCustomer
 );
 
 router.get(
   '/customers/:id',
-  authenticateToken,handleValidationErrors,
+  authenticateToken,
+  handleValidationErrors,
   authorizeRole(['ADMIN', 'EMPLOYE']),
   customerController.getCustomerById
 );
@@ -44,8 +50,10 @@ router.delete(
 
 router.get(
   '/customers',
-  authenticateToken,handleValidationErrors,
-  authorizeRole(['ADMIN', 'EMPLOYE']),handleValidationErrors,
+  authenticateToken,
+  handleValidationErrors,
+  authorizeRole(['ADMIN', 'EMPLOYE']),
+  handleValidationErrors,
   customerController.getAllCustomers
 );
 

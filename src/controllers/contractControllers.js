@@ -41,10 +41,13 @@ const contractController = {
         },
       });
       if (existingReservations.length > 0) {
-        return res.status(400).json({ error: 'Le véhicule est déjà réservé pour les dates sélectionnées.' });
-
+        return res
+          .status(400)
+          .json({
+            error: 'Le véhicule est déjà réservé pour les dates sélectionnées.',
+          });
       }
-      
+
       const contract = await prisma.contract.create({
         data: {
           contractNumber,
@@ -96,19 +99,19 @@ const contractController = {
   getContractById: async (req, res) => {
     const { id } = req.params;
     const user_id = req.user?.user_id;
-  
+
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
-  
+
     try {
       // Convertit l'ID en entier
       const contractId = parseInt(id, 10);
-  
+
       if (isNaN(contractId)) {
         return res.status(400).json({ error: 'ID invalide.' });
       }
-  
+
       const contract = await prisma.contract.findFirst({
         where: { id: contractId, user_id },
         include: {
@@ -116,26 +119,30 @@ const contractController = {
           customer: true,
         },
       });
-  
+
       if (!contract) {
         return res.status(404).json({ error: 'Contrat introuvable.' });
       }
-  
+
       // Transforme les dates pour les envoyer au frontend
       const formattedContract = {
         ...contract,
         startDate: contract.startDate ? contract.startDate.toISOString() : null,
-        returnDate: contract.returnDate ? contract.returnDate.toISOString() : null,
+        returnDate: contract.returnDate
+          ? contract.returnDate.toISOString()
+          : null,
       };
-  
+
       return res.status(200).json(formattedContract);
     } catch (error) {
-      console.error('Erreur lors de la récupération du contrat :', error.message);
+      console.error(
+        'Erreur lors de la récupération du contrat :',
+        error.message
+      );
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
-  
-  
+
   updateContractStatus: async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -144,7 +151,7 @@ const contractController = {
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
-  
+
     if (!['VALIDER', 'EN_ATTENTE', 'ANNULER'].includes(status)) {
       return res.status(400).json({ error: 'Statut invalide.' });
     }
@@ -156,7 +163,10 @@ const contractController = {
       });
       return res.status(200).json(updatedContract);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du statut du contrat :', error);
+      console.error(
+        'Erreur lors de la mise à jour du statut du contrat :',
+        error
+      );
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
@@ -167,7 +177,7 @@ const contractController = {
       console.log('Erreurs de validation :', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
     const { id } = req.params;
     const {
       contractNumber,
@@ -178,9 +188,9 @@ const contractController = {
       totalAmount,
       status,
     } = req.body;
-    
+
     const user_id = req.user?.user_id;
-    
+
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
@@ -213,7 +223,10 @@ const contractController = {
 
       return res.status(200).json(updatedContract);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du contrat :', error.message);
+      console.error(
+        'Erreur lors de la mise à jour du contrat :',
+        error.message
+      );
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
@@ -238,11 +251,12 @@ const contractController = {
       }
 
       await prisma.contract.delete({ where: { id: parseInt(id) } });
-      return res
-        .status(204)
-        .json({ message: 'Contrat supprimé avec succès.' });
+      return res.status(204).json({ message: 'Contrat supprimé avec succès.' });
     } catch (error) {
-      console.error('Erreur lors de la suppression du contrat :', error.message);
+      console.error(
+        'Erreur lors de la suppression du contrat :',
+        error.message
+      );
       return res.status(500).json({ error: 'Erreur interne du serveur.' });
     }
   },
