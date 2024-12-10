@@ -9,8 +9,7 @@ export const reservationController = {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
-      req.body;
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } = req.body;
     const user_id = req.user?.user_id;
 
     if (!user_id) {
@@ -28,7 +27,7 @@ export const reservationController = {
       const existingReservations = await prisma.reservation.findMany({
         where: {
           vehicle_id,
-          status: { in: ['CONFIRMER', 'EN_ATTENTE', 'ANNULLER'] },
+          status: { in: ['CONFIRMER'] },
           OR: [
             {
               startDate: { lte: endDateParsed },
@@ -75,7 +74,7 @@ export const reservationController = {
     const user_id = req.user?.user_id; // Récupère l'ID de l'utilisateur authentifié
 
     if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' }); // Si l'utilisateur n'est pas authentifié, renvoie une erreur 401
+      return res.status(401).json({ error: 'Utilisateur non authentifié.' }); 
     }
 
     try {
@@ -93,14 +92,7 @@ export const reservationController = {
         return res.status(404).json({ error: 'Réservation non trouvée.' });
       }
 
-      // Si la réservation existe et appartient à l'utilisateur authentifié, renvoie les données
-      if (reservation.user_id === user_id) {
-        return res.status(200).json(reservation);
-      } else {
-        return res
-          .status(403)
-          .json({ error: 'Accès non autorisé à cette réservation.' });
-      }
+    
     } catch (error) {
       console.error('Get Reservation By ID Error:', error.message); // Log l'erreur dans la console
       return res.status(500).json({
@@ -111,15 +103,9 @@ export const reservationController = {
 
   // Méthode pour récupérer toutes les réservations
   async getAllReservations(req, res) {
-    const user_id = req.user?.user_id;
-
-    if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
-    }
-
+    
     try {
       const reservations = await prisma.reservation.findMany({
-        where: { user_id },
         include: {
           customer: { select: { id: true, fullName: true } },
           vehicle: { select: { id: true, brand: true, model: true } },
@@ -134,53 +120,91 @@ export const reservationController = {
     }
   },
 
-  // Méthode pour mettre à jour une réservation
   async updateReservation(req, res) {
+    // Validation des erreurs dans la requête
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { id } = req.params;
-    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } =
-      req.body;
-    const user_id = req.user?.user_id;
+    const { vehicle_id, customer_id, startDate, endDate, totalAmount, status } = req.body;
+    const user_id = req.user?.user_id; 
 
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
 
     try {
-      const reservation = await prisma.reservation.findUnique({
-        where: { id: Number(id) },
-      });
-
-      if (!reservation || reservation.user_id !== user_id) {
-        return res.status(403).json({ error: 'Accès non autorisé.' });
+      // Vérification si l'ID est un entier valide
+      const reservationId = parseInt(id);
+      if (isNaN(reservationId)) {
+        return res.status(400).json({ error: 'L\'ID de la réservation doit être un entier valide.' });
       }
 
-      // if (reservation.status === 'CONFIRMER') {
-      //   return res.status(400).json({ error: 'Réservation confirmée, modification impossible.' });
-      // }
+      // Recherche de la réservation existante
+      const reservation = await prisma.reservation.findUnique({
+        where: { id: reservationId },
+      });
 
-      const updatedReservation = await prisma.reservation.update({
-        where: { id: Number(id) },
-        data: {
+      if (!reservation) {
+        return res.status(404).json({ error: 'Réservation non trouvée.' });
+      }
+      
+    
+      
+      // Conversion et validation des dates
+      const startDateParsed = new Date(startDate);
+      const endDateParsed = new Date(endDate);
+
+      if (isNaN(startDateParsed.getTime()) || isNaN(endDateParsed.getTime())) {
+        return res.status(400).json({ error: 'Format de date invalide.' });
+      }
+
+      if (startDateParsed >= endDateParsed) {
+        return res.status(400).json({ error: 'La date de début doit être antérieure à la date de fin.' });
+      }
+
+      // Vérification des conflits avec d'autres réservations
+      const existingReservations = await prisma.reservation.findMany({
+        where: {
           vehicle_id,
-          customer_id,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          totalAmount,
-          status: status || reservation.status,
+          status: { in: ['CONFIRMER'] },
+          id: { not: reservationId }, // Exclure la réservation actuelle
+          OR: [
+            {
+              startDate: { lte: endDateParsed },
+              endDate: { gte: startDateParsed },
+            },
+          ],
         },
       });
 
+      if (existingReservations.length > 0) {
+        return res.status(400).json({
+          error: 'Le véhicule est déjà réservé pour les dates spécifiées.',
+        });
+      }
+      console.log('Données reçues :', req.body);
+      console.log('ID de la réservation :', req.params.id);
+      
+      // Mise à jour de la réservation
+      const updatedReservation = await prisma.reservation.update({
+        where: { id: reservationId },
+        data: {
+          customer_id: parseInt(customer_id),
+          vehicle_id: parseInt(vehicle_id),
+          startDate: startDateParsed,
+          endDate: endDateParsed,
+          totalAmount: parseFloat(totalAmount),
+          status: status,
+        },
+      });
+      
       return res.status(200).json(updatedReservation);
     } catch (error) {
-      console.error('Update Reservation Error:', error.message);
-      return res
-        .status(500)
-        .json({ error: `Erreur lors de la mise à jour: ${error.message}` });
+      console.error('Erreur lors de la mise à jour de la réservation:', error.message);
+      return res.status(500).json({ error: `Erreur lors de la mise à jour: ${error.message}` });
     }
   },
 
@@ -198,14 +222,6 @@ export const reservationController = {
     }
 
     try {
-      const reservation = await prisma.reservation.findUnique({
-        where: { id: Number(id) },
-      });
-
-      if (!reservation || reservation.user_id !== user_id) {
-        return res.status(403).json({ error: 'Accès non autorisé.' });
-      }
-
       const updatedStatus = await prisma.reservation.update({
         where: { id: Number(id) },
         data: { status },
@@ -234,8 +250,8 @@ export const reservationController = {
         where: { id: Number(id) },
       });
 
-      if (!reservation || reservation.user_id !== user_id) {
-        return res.status(403).json({ error: 'Accès non autorisé.' });
+      if (!reservation) {
+        return res.status(403).json({ error: 'Reservation non trouvé.' });
       }
 
       if (reservation.status === 'CONFIRMER') {

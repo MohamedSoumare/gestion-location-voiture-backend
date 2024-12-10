@@ -62,7 +62,7 @@ export const login = async (req, res) => {
     }
 
     // Génération des tokens
-    const token = generateToken(user, process.env.JWT_SECRET, '1h');
+    const token = generateToken(user, process.env.JWT_SECRET, '7h');
     const refreshToken = generateToken(
       user,
       process.env.JWT_REFRESH_SECRET,
@@ -89,7 +89,6 @@ export const login = async (req, res) => {
   }
 };
 
-// Réinitialisation du mot de passe
 export const resetPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -97,8 +96,17 @@ export const resetPassword = async (req, res) => {
     if (!user)
       return res.status(404).json({ error: 'Utilisateur non trouvé.' });
 
-    const resetToken = generateToken(user, process.env.JWT_SECRET, '30m');
+    // Générer un OTP aléatoire
+    const otp = (Math.floor(100000 + Math.random() * 900000)).toString(); // Un nombre à 6 chiffres
+    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // Expire dans 10 minutes
 
+    // Stocker l'OTP et sa date d'expiration dans la base de données
+    await prisma.user.update({
+      where: { email },
+      data: { otp, otpExpiration },
+    });
+
+    // Envoyer l'OTP par email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -110,18 +118,53 @@ export const resetPassword = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Réinitialisation de mot de passe',
-      text: `Cliquez ici pour réinitialiser votre mot de passe : ${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`,
+      subject: 'Code OTP pour réinitialisation de mot de passe',
+      text: `Votre code OTP est : ${otp}. Il est valable pour 10 minutes.`,
     };
 
     await transporter.sendMail(mailOptions);
     return res
       .status(200)
-      .json({ message: 'Lien de réinitialisation envoyé.' });
+      .json({ message: 'Code OTP envoyé à votre adresse email.' });
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de l\'email:', error);
+    console.error('Erreur lors de l\'envoi de l\'OTP :', error);
     return res
       .status(500)
-      .json({ message: 'Erreur lors de l\'envoi de l\'email.' });
+      .json({ message: 'Erreur lors de l\'envoi de l\'OTP.' });
+  }
+};
+
+export const updateResetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  try {
+    // Rechercher l'utilisateur par email
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé.' });
+    }
+    // Vérifier l'OTP et sa validité
+    if (user.otp !== otp || new Date() > new Date(user.otpExpiration)) {
+      return res.status(400).json({ error: 'OTP invalide ou expiré.' });
+    }
+
+    // Hacher le nouveau mot de passe
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Mettre à jour le mot de passe et réinitialiser l'OTP
+    await prisma.user.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        otp: null,
+        otpExpiration: null,
+      },
+    });
+
+    // Réponse de succès
+    return res.status(200).json({ message: 'Mot de passe réinitialisé avec succès.' });
+  } catch (error) {
+    // Gérer les erreurs
+    console.error('Erreur lors de la réinitialisation du mot de passe :', error);
+    return res.status(500).json({ message: 'Erreur lors de la réinitialisation.' });
   }
 };

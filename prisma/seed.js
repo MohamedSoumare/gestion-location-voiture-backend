@@ -25,7 +25,7 @@ async function main() {
       fullName: 'Admin',
       email: 'admin@admin.com',
       phoneNumber: '49491916',
-      password: await hashPassword('Admin1234'),
+      password: await hashPassword('Admin12345'),
       status: true,
       role: 'ADMIN',
     },
@@ -33,8 +33,8 @@ async function main() {
 
   const employeUser = await prisma.user.create({
     data: {
-      fullName: 'Employé',
-      email: 'employe@example.com',
+      fullName: 'Bakary',
+      email: 'employe@gmail.com',
       phoneNumber: '41112742',
       password: await hashPassword('employe123'),
       status: true,
@@ -73,7 +73,7 @@ async function main() {
       brand: 'Toyota',
       model: 'Corolla',
       year: 2021,
-      registrationPlate: 'AA-123-BB',
+      registrationPlate: '0203-AB-00',
       status: 'Disponible',
       seatCount: 5,
       doorCount: 4,
@@ -81,7 +81,7 @@ async function main() {
       fuelType: 'Essence',
       transmissionType: 'Automatique',
       airConditioning: true,
-      dailyRate: 50.0,
+      dailyRate: 500.0,
       user_id: adminUser.id,
     },
   });
@@ -91,15 +91,15 @@ async function main() {
       brand: 'Ford',
       model: 'Focus',
       year: 2020,
-      registrationPlate: 'CC-456-DD',
-      status: 'Maintenance',
+      registrationPlate: '0507-AZ-00',
+      status: 'Disponible',
       seatCount: 5,
       doorCount: 4,
       color: 'Bleu',
       fuelType: 'Diesel',
       transmissionType: 'Manuelle',
       airConditioning: false,
-      dailyRate: 45.0,
+      dailyRate: 500.00,
       user_id: employeUser.id,
     },
   });
@@ -109,7 +109,7 @@ async function main() {
     data: {
       startDate: new Date(),
       endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-      totalAmount: 350.0,
+      totalAmount: 2500.0,
       status: 'CONFIRMER',
       vehicle_id: vehicle1.id,
       customer_id: customer1.id,
@@ -121,7 +121,7 @@ async function main() {
     data: {
       startDate: new Date(),
       endDate: new Date(new Date().setDate(new Date().getDate() + 3)),
-      totalAmount: 135.0,
+      totalAmount: 200,
       status: 'EN_ATTENTE',
       vehicle_id: vehicle2.id,
       customer_id: customer2.id,
@@ -132,10 +132,10 @@ async function main() {
   // Création des contrats
   const contract1 = await prisma.contract.create({
     data: {
-      contractNumber: 'C12345',
+      contractNumber: 'MRN-CTR-12345',
       startDate: new Date(),
       returnDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-      totalAmount: 350.0,
+      totalAmount: 300.00,
       status: 'VALIDER',
       vehicle_id: vehicle1.id,
       customer_id: customer1.id,
@@ -145,10 +145,10 @@ async function main() {
 
   const contract2 = await prisma.contract.create({
     data: {
-      contractNumber: 'C67890',
+      contractNumber: 'MRN-CTR-13467',
       startDate: new Date(),
       returnDate: null,
-      totalAmount: 200.0,
+      totalAmount: 250.00,
       status: 'EN_ATTENTE',
       vehicle_id: vehicle2.id,
       customer_id: customer2.id,

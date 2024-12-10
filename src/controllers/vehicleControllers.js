@@ -24,7 +24,6 @@ export const vehicleController = {
     } = req.body;
 
     const user_id = req.user?.user_id;
-
     if (!user_id) {
       return res.status(401).json({ error: 'Utilisateur non authentifié.' });
     }
@@ -78,11 +77,7 @@ export const vehicleController = {
         return res.status(404).json({ error: 'Véhicule non trouvé.' });
       }
 
-      if (vehicle.user_id !== user_id) {
-        return res.status(403).json({
-          error: 'Vous n\'êtes pas autorisé à modifier ce véhicule.',
-        });
-      }
+    
 
       // Préparer les données de mise à jour
       const {
@@ -117,11 +112,12 @@ export const vehicleController = {
       }
       if (dailyRate) updateData.dailyRate = dailyRate;
       if (status) updateData.status = status;
-
+      updateData.user_id= user_id;
       // Mettre à jour le véhicule avec les données filtrées
       const updatedVehicle = await prisma.vehicle.update({
         where: { id: parseInt(id, 10) },
         data: updateData,
+        
       });
 
       return res.status(200).json(updatedVehicle);
@@ -134,17 +130,10 @@ export const vehicleController = {
   },
 
   // Retrieve all vehicles
-  getAllVehicles: async (req, res) => {
-    const user_id = req.user?.user_id;
-
-    if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
-    }
+  getAllVehicles: async (_req, res) => {
 
     try {
-      const vehicles = await prisma.vehicle.findMany({
-        where: { user_id },
-      });
+      const vehicles = await prisma.vehicle.findMany({});
       //  const vehicles = await prisma.vehicle.findMany();
       return res.status(200).json(vehicles);
     } catch (error) {
@@ -158,17 +147,16 @@ export const vehicleController = {
   // Retrieve a vehicle by ID
   getVehicleById: async (req, res) => {
     const { id } = req.params;
-    const user_id = req.user?.user_id;
+    // const user_id = req.user?.user_id;
 
-    if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
-    }
+    // if (!user_id) {
+    //   return res.status(401).json({ error: 'Utilisateur non authentifié.' });
+    // }
 
     try {
       const vehicle = await prisma.vehicle.findFirst({
         where: {
           id: parseInt(id, 10),
-          user_id,
         },
       });
       if (!vehicle) {

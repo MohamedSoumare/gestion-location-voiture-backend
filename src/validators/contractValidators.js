@@ -110,7 +110,7 @@ export const contractValidators = [
     .custom((value) => {
       // Convertir la valeur en nombre
       const num = parseFloat(value);
-      // Vérifier si c'est un nombre, s'il est supérieur à zéro et s'il n'est pas NaN
+      // Vérifier si c'est un nombre, s'il est supérieur à zéro et s'il n'est pas
       if (isNaN(num) || num <= 0) {
         throw new Error(
           'Le montant total doit être un nombre positif supérieur à zéro.'

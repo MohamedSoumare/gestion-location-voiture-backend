@@ -87,12 +87,7 @@ const customerController = {
         return res.status(404).json({ error: 'Client non trouvé.' });
       }
 
-      if (customer.user_id !== user_id) {
-        return res
-          .status(403)
-          .json({ error: 'Non autorisé à modifier ce client.' });
-      }
-
+     
       const updatedData = {};
       if (fullName) updatedData.fullName = fullName.trim();
       if (address) updatedData.address = address.trim();
@@ -100,6 +95,7 @@ const customerController = {
       if (nni) updatedData.nni = nni;
       if (birthDate) updatedData.birthDate = new Date(birthDate);
       if (drivingLicense) updatedData.drivingLicense = drivingLicense.trim();
+      updatedData.user_id= user_id;
 
       const updatedCustomer = await prisma.customer.update({
         where: { id: customerId },
@@ -128,7 +124,7 @@ const customerController = {
 
     try {
       const customer = await prisma.customer.findFirst({
-        where: { id: customerId, user_id },
+        where: { id: customerId},
         include: {
           reservations: true,
           contracts: true,
@@ -151,17 +147,9 @@ const customerController = {
 
   // Récupérer tous les clients de l'utilisateur
   getAllCustomers: async (req, res) => {
-    const user_id = req.user?.user_id;
-
-    if (!user_id) {
-      return res.status(401).json({ error: 'Utilisateur non authentifié.' });
-    }
-
+    
     try {
-      const customers = await prisma.customer.findMany({
-        where: { user_id },
-      });
-
+      const customers = await prisma.customer.findMany({});
       return res.status(200).json(customers);
     } catch (error) {
       console.error(
@@ -187,13 +175,6 @@ const customerController = {
 
       if (!customer) {
         return res.status(404).json({ error: 'Client non trouvé.' });
-      }
-
-      // Vérifie si l'utilisateur est autorisé
-      if (customer.user_id !== user_id) {
-        return res
-          .status(403)
-          .json({ error: 'Non autorisé à supprimer ce client.' });
       }
 
       // Vérifie si le client a des réservations actives
