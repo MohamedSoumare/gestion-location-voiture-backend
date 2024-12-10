@@ -101,7 +101,7 @@
 					"response": []
 				},
 				{
-					"name": "users/delet/:id",
+					"name": "users/delete/:id",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -193,7 +193,7 @@
 					"response": []
 				},
 				{
-					"name": "users/reset-password",
+					"name": "users/change-password",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -506,11 +506,21 @@
 				{
 					"name": "vehicules/add",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3MzM3NzMxMjksImV4cCI6MTczMzc5ODMyOX0.lJULZ4SVb-fIOR7oWGtrELKoRI5YmPyrGuqMZjc6Tus",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n       \"brand\": \"Ford\",\r\n        \"model\": \"Allamend\",\r\n        \"year\": 2020,\r\n        \"registrationPlate\": \"1420-JKL\",\r\n        \"status\": \"maintenance\",\r\n        \"seatCount\": 5,\r\n        \"doorCount\": 4,\r\n        \"color\": \"Gray\",\r\n        \"fuelType\": \"Diesel\",\r\n        \"transmissionType\": \"Automatique\",\r\n        \"airConditioning\": true,\r\n        \"dailyRate\": \"400\"\r\n     \r\n}\r\n",
+							"raw": "{\r\n  \"brand\": \"Ford\",\r\n  \"model\": \"Allamend\",\r\n  \"year\": 2020,\r\n  \"registrationPlate\": \"1400 AB 00\",\r\n  \"status\": \"Disponibles\",\r\n  \"seatCount\": 5,\r\n  \"doorCount\": 4,\r\n  \"color\": \"Noir\",\r\n  \"fuelType\": \"Manuel\",\r\n  \"transmissionType\": \"Automatique\",\r\n  \"airConditioning\": true,\r\n  \"dailyRate\": \"400.00\"\r\n}\r\n\r\n// [\r\n\r\n//   {\r\n//     \"brand\": \"Renault\",\r\n//     \"model\": \"Clio\",\r\n//     \"year\": 2018,\r\n//     \"registrationPlate\": \"1720 AH 03\",\r\n//     \"status\": \"En réparation\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 4,\r\n//     \"color\": \"Rouge\",\r\n//     \"fuelType\": \"Essence\",\r\n//     \"transmissionType\": \"Manuelle\",\r\n//     \"airConditioning\": false,\r\n//     \"dailyRate\": \"300\"\r\n//   }\r\n//   {\r\n//     \"brand\": \"BMW\",\r\n//     \"model\": \"X5\",\r\n//     \"year\": 2022,\r\n//     \"registrationPlate\": \"1820 AB 04\",\r\n//     \"status\": \"Disponibles\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 5,\r\n//     \"color\": \"Noir\",\r\n//     \"fuelType\": \"Manuel\",\r\n//     \"transmissionType\": \"Automatique\",\r\n//     \"airConditioning\": true,\r\n//     \"dailyRate\": \"400\"\r\n//   },\r\n//   {\r\n//     \"brand\": \"Mercedes\",\r\n//     \"model\": \"A-Class\",\r\n//     \"year\": 2020,\r\n//     \"registrationPlate\": \"1920 KL 05\",\r\n//     \"status\": \"Disponibles\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 4,\r\n//     \"color\": \"Gris\",\r\n//     \"fuelType\": \"Essence\",\r\n//     \"transmissionType\": \"Automatique\",\r\n//     \"airConditioning\": true,\r\n//     \"dailyRate\": \"500\"\r\n//   },\r\n//   {\r\n//     \"brand\": \"Audi\",\r\n//     \"model\": \"Q3\",\r\n//     \"year\": 2021,\r\n//     \"registrationPlate\": \"2020 AD 06\",\r\n//     \"status\": \"Disponibles\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 5,\r\n//     \"color\": \"Jaune\",\r\n//     \"fuelType\": \"Gazoil\",\r\n//     \"transmissionType\": \"Automatique\",\r\n//     \"airConditioning\": true,\r\n//     \"dailyRate\": \"500\"\r\n//   },\r\n//   {\r\n//     \"brand\": \"Hyundai\",\r\n//     \"model\": \"i20\",\r\n//     \"year\": 2017,\r\n//     \"registrationPlate\": \"2120 AD 07\",\r\n//     \"status\": \"Indisponibles\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 4,\r\n//     \"color\": \"Vert\",\r\n//     \"fuelType\": \"Essence\",\r\n//     \"transmissionType\": \"Manuelle\",\r\n//     \"airConditioning\": false,\r\n//     \"dailyRate\": \"380\"\r\n//   },\r\n//   {\r\n//     \"brand\": \"Kia\",\r\n//     \"model\": \"Sportage\",\r\n//     \"year\": 2019,\r\n//     \"registrationPlate\": \"2220 AB 08\",\r\n//     \"status\": \"Disponibles\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 5,\r\n//     \"color\": \"Blue\",\r\n//     \"fuelType\": \"Gazoil\",\r\n//     \"transmissionType\": \"Automatique\",\r\n//     \"airConditioning\": true,\r\n//     \"dailyRate\": \"450\"\r\n//   },\r\n//   {\r\n//     \"brand\": \"Volkswagen\",\r\n//     \"model\": \"Golf\",\r\n//     \"year\": 2018,\r\n//     \"registrationPlate\": \"2320 AB 09\",\r\n//     \"status\": \"Disponibles\",\r\n//     \"seatCount\": 5,\r\n//     \"doorCount\": 4,\r\n//     \"color\": \"Blanc\",\r\n//     \"fuelType\": \"Essence\",\r\n//     \"transmissionType\": \"Manuelle\",\r\n//     \"airConditioning\": true,\r\n//     \"dailyRate\": \"400\"\r\n//   }\r\n//]\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -733,21 +743,13 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "register",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				},
-				{
 					"name": "update-profile",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"fullName\": \"Nouveau Nom\",\r\n  \"email\": \"nouveau.email@example.com\",\r\n  \"phoneNumber\": \"123456789\",\r\n  \"password\": \"nouveaumotdepasse\",\r\n  \"status\": true,\r\n  \"role\": \"admin\"\r\n}",
+							"raw": "{\r\n  \"fullName\": \"Salif\",\r\n  \"email\": \"salif.email@example.com\",\r\n  \"phoneNumber\": \"32345678\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -779,7 +781,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{ \r\n  \"email\": \"admin@admin.com\",\r\n  \"password\": \"Admin12345\"\r\n}",
+							"raw": "// { \r\n//   \"email\": \"admin@admin.com\",\r\n//   \"password\": \"Admin12345\"\r\n// }\r\n{\r\n     \"email\": \"hrnsmre67@gmail.com\",\r\n  \"password\": \"Admin15345\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -799,16 +801,64 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "resetPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"alisoumare67@gmail.com\",\r\n  \"code\": \"282438\",\r\n  \"newPassword\":\"Ali494940\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forget-password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"alisoumare67@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/forgot-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
 				}
 			]
-		},
-		{
-			"name": "New Request",
-			"request": {
-				"method": "GET",
-				"header": []
-			},
-			"response": []
 		}
 	]
 }

@@ -99,7 +99,7 @@ npm run format
 
 ## Documentation des Endpoints API
 
-Vous pouvez importer la collection Postman **Collection-api-rental-cars.postman_collection.json**, disponible à la racine du projet, pour tester facilement tous les endpoints sur **[Postman](https://www.postman.com/)**.
+Vous pouvez importer la collection Postman **Collection-api-rental-cars.postman_collection.json**, disponible à la racine du projet, pour tester facilement tous les endpoints sur **[Postman](https://web.postman.co/workspace/My-Workspace~60f85a58-2c45-4e2e-8712-9e9a5685f027/collection/38822647-1b6d7efe-f7a0-41d7-8456-ed2080fa4c46)**.
 
 ### Endpoints Principaux
 
